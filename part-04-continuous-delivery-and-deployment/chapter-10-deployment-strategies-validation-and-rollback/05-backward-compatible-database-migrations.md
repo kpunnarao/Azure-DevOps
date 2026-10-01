@@ -1,37 +1,75 @@
-# Backward-Compatible Database Migrations
+# Backward-compatible Database Migrations
 
-> Chapter 10 — Deployment Strategies, Validation, and Rollback
+[← Feature Flags](04-feature-flags.md) · [Chapter 10](README.md) · [Next: Health Checks →](06-health-checks-and-zero-downtime.md)
 
-[← Previous](04-feature-flags.md) · [Chapter home](README.md) · [Next →](06-health-checks-and-zero-downtime.md)
+## State makes deployment difficult
 
-## Learning objectives
+During rolling, canary, or blue-green delivery, old and new application versions may access the same database. A schema change must support this overlap and recovery. The standard approach is **expand, migrate, contract**.
 
-- Explain the purpose and core concepts of backward-compatible database migrations.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+## Expand
 
-## Content
+Make additive, backward-compatible changes:
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+- Add nullable columns or columns with safe defaults.
+- Add new tables, indexes, views, or APIs.
+- Keep old columns and behavior.
+- Deploy code that can tolerate both representations.
 
-## Hands-on exercise
+Avoid renaming/dropping columns, narrowing types, or introducing an immediately required field in the same release that first uses it.
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+## Migrate
 
-## Production considerations
+Backfill existing data in bounded, observable batches. Throttle to protect production, checkpoint progress, make the operation restartable, and validate counts/invariants. For a transition period, the application may dual-read or dual-write; define conflict resolution and measure divergence.
 
-Document security, reliability, maintainability, cost, and governance implications.
+Large index/constraint operations can lock or consume resources. Use the database platform's online/concurrent capabilities where supported and test realistic volume.
 
-## Discussion questions
+## Contract
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+After every supported application version uses the new representation and migration is verified:
 
-## Further reading
+1. Stop old reads/writes.
+2. Observe for a safety window.
+3. Remove compatibility code and feature flag.
+4. Enforce new constraints.
+5. Drop old schema in a later release.
 
-Add current, authoritative Microsoft or upstream product documentation here.
+Contract is a separate change, not automatic cleanup at the end of the first deployment.
 
+## Migration ownership
+
+Use a single controlled migration executor, not every application replica racing at startup. Maintain a schema-version ledger, idempotency, lock/concurrency control, timeouts, backup/recovery plan, and least-privilege database identity. Separate schema authority from ordinary runtime data access.
+
+## Rollback implications
+
+Code rollback is safe only while the schema remains compatible. Data transformation may be irreversible even if DDL can be reversed. Prefer roll-forward after writes begin under the new behavior, unless a tested reverse migration and data-reconciliation plan exists.
+
+## Common mistakes
+
+- Destructive migration before new code is stable.
+- Adding a non-null column without safe handling on a large table.
+- Running migrations from every pod.
+- Long unbounded transaction/lock.
+- Assuming backup restore meets recovery objectives.
+- Removing old schema before delayed workers/consumers upgrade.
+
+## Interview preparation
+
+**How rename a production column?**  
+Add the new column, deploy compatible dual-read/write behavior, backfill and validate, move reads, stop old writes, then drop the old column in a later release.
+
+**Why not roll back the database automatically?**  
+New writes and transformations may lose meaning or data under the old schema. Roll-forward is often safer.
+
+**Who runs migrations?**  
+A controlled, observable, single executor with narrowly scoped credentials—not every application instance.
+
+## Practical exercise
+
+Add a replacement column using three releases: expand, migrate/dual-write, and contract. Keep old code running during the first two. Interrupt the backfill and prove it resumes safely. Measure locks and validate invariants.
+
+## Official references
+
+- [Azure Well-Architected guidance for deployment and data](https://learn.microsoft.com/azure/well-architected/operational-excellence/safe-deployments)
+- [Zero-downtime deployment considerations](https://learn.microsoft.com/azure/architecture/guide/multitenant/considerations/updates)
+
+[Next: Health Checks and Zero Downtime →](06-health-checks-and-zero-downtime.md)

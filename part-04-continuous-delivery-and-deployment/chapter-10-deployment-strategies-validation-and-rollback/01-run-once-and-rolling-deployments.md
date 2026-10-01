@@ -1,37 +1,86 @@
-# Run-Once and Rolling Deployments
+# Run-once and Rolling Deployments
 
-> Chapter 10 — Deployment Strategies, Validation, and Rollback
+[← Chapter 10](README.md) · [Next: Blue-green Deployment →](02-blue-green-deployment.md)
 
-[Chapter home](README.md) · [Next →](02-blue-green-deployment.md)
+## Run-once
 
-## Learning objectives
+Azure Pipelines `runOnce` executes deployment lifecycle hooks once for the target. It is suitable when the platform handles replacement internally, the application is a single logical target, a maintenance window is acceptable, or another mechanism such as an App Service slot controls traffic.
 
-- Explain the purpose and core concepts of run-once and rolling deployments.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+```yaml
+strategy:
+  runOnce:
+    preDeploy:
+      steps:
+      - script: ./validate-prerequisites.sh
+    deploy:
+      steps:
+      - script: ./deploy.sh
+    postRouteTraffic:
+      steps:
+      - script: ./smoke-test.sh
+    on:
+      failure:
+        steps:
+        - script: ./collect-diagnostics.sh
+```
 
-## Content
+Run-once describes pipeline orchestration, not availability. Whether downtime occurs depends on the target platform and deployment command.
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+## Rolling deployment
 
-## Hands-on exercise
+A rolling rollout updates a subset of instances at a time, validates them, then proceeds. It reduces simultaneous exposure and can preserve capacity, but old and new versions coexist. APIs, messages, sessions, and database schemas must therefore remain compatible.
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+Azure Pipelines deployment-job rolling strategy targets supported VM environment resources. Verify current resource support before designing around it.
 
-## Production considerations
+```yaml
+strategy:
+  rolling:
+    maxParallel: 25%
+    deploy:
+      steps:
+      - script: ./deploy-instance.sh
+    postRouteTraffic:
+      steps:
+      - script: ./validate-batch.sh
+```
 
-Document security, reliability, maintainability, cost, and governance implications.
+`maxParallel` controls batch size as a number or percentage. A small batch reduces blast radius but lengthens deployment and may not provide enough traffic for a meaningful signal.
 
-## Discussion questions
+## Capacity and sequencing
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+Account for load-balancer draining, readiness, connection/session lifetime, replica quorum, autoscaling, and failure-domain distribution. Do not take an entire availability zone or quorum set out at once.
 
-## Further reading
+Each batch needs:
 
-Add current, authoritative Microsoft or upstream product documentation here.
+1. Remove/drain target capacity.
+2. Deploy exact artifact.
+3. Start and pass readiness.
+4. Return traffic gradually.
+5. Observe technical and business health.
+6. Continue or stop.
 
+## Failure behavior
+
+Decide whether a failed batch stops, restores that batch, rolls back all updated instances, or triggers roll-forward. Azure Pipelines orchestration is not a substitute for platform-aware recovery. Design idempotent steps because retries may revisit partial state.
+
+## Interview preparation
+
+**When use run-once?**  
+For a single logical target or when the platform itself provides safe replacement/slot semantics.
+
+**Main rolling risk?**  
+Version coexistence. Contracts, database changes, caches, and messages must support both versions while the rollout runs.
+
+**How select batch size?**  
+Balance blast radius, remaining capacity, signal volume, rollout duration, failure-domain topology, and recovery speed.
+
+## Practical exercise
+
+Deploy three disposable instances with batches of one. Add drain, readiness, and batch validation. Break the second instance and observe stop/recovery behavior. Repeat with an unsafe contract change and document why orchestration cannot fix incompatibility.
+
+## Official references
+
+- [Deployment jobs and strategies](https://learn.microsoft.com/azure/devops/pipelines/process/deployment-jobs)
+- [jobs.deployment.strategy schema](https://learn.microsoft.com/azure/devops/pipelines/yaml-schema/jobs-deployment-strategy)
+
+[Next: Blue-green Deployment →](02-blue-green-deployment.md)

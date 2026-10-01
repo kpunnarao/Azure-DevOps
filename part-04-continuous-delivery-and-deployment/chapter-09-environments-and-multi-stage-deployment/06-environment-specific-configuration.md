@@ -1,37 +1,68 @@
-# Environment-Specific Configuration
+# Environment-specific Configuration
 
-> Chapter 9 — Environments and Multi-stage Deployment Pipelines
+[← Variables, Secure Files, and Key Vault](05-variable-groups-secure-files-and-key-vault.md) · [Chapter 9](README.md) · [Next: Approvals and Locks →](07-approvals-checks-and-exclusive-locks.md)
 
-[← Previous](05-variable-groups-secure-files-and-key-vault.md) · [Chapter home](README.md) · [Next →](07-approvals-checks-and-exclusive-locks.md)
+## One artifact, external configuration
 
-## Learning objectives
+The application binary or image should be identical in Development, Test, and Production. Environment behavior changes through externally supplied configuration: endpoints, feature settings, scale, connection references, and secret identifiers.
 
-- Explain the purpose and core concepts of environment-specific configuration.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+Separate:
 
-## Content
+- **Build-time values:** genuinely affect compilation and therefore artifact identity.
+- **Deploy-time values:** bind the artifact to an environment.
+- **Runtime values:** can change safely while the application runs.
+- **Secrets:** retrieved through a protected channel, never committed.
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+If a “configuration transform” modifies compiled or packaged content, the environments no longer run the same artifact. Prefer platform settings, mounted configuration, deployment manifests, or configuration services.
 
-## Hands-on exercise
+## Hierarchy and precedence
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+Define and document precedence, for example:
 
-## Production considerations
+```text
+safe application defaults
+  < versioned environment config
+  < deployment parameters
+  < protected runtime config
+  < secret references
+```
 
-Document security, reliability, maintainability, cost, and governance implications.
+Avoid the same key in many layers. Validate a resolved configuration schema before deployment and log non-secret keys/source—not secret values.
 
-## Discussion questions
+## Configuration as code
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+Store non-secret configuration in Git when review and reproducibility matter. Use schemas, types, allowed ranges, policy tests, and environment overlays. Avoid duplicating whole files: a small override reduces drift.
 
-## Further reading
+Secrets must be referenced, not embedded. A versioned manifest can identify a Key Vault secret name or managed-identity resource without containing the credential.
 
-Add current, authoritative Microsoft or upstream product documentation here.
+## Safe change management
 
+Configuration changes can be as dangerous as code. They need ownership, review, testing, audit, rollout, and recovery. A direct production portal edit should be an emergency exception followed by reconciliation back into the declared source.
+
+Prevent environment-name string concatenation from selecting credentials or subscriptions. Protected resources should remain explicit and reviewable.
+
+## Observability
+
+At startup, emit a sanitized configuration fingerprint: application version, environment, region/stamp, non-secret feature set, configuration revision, and dependency endpoints. This helps explain why identical artifacts behave differently. Never include tokens, passwords, connection strings, or sensitive customer settings.
+
+## Interview preparation
+
+**Why avoid environment-specific builds?**  
+They invalidate build-once evidence and create different binaries for each environment. External configuration preserves artifact identity.
+
+**Should all configuration be in variable groups?**  
+No. Large structured non-secret configuration is easier to review and validate in files or a configuration service. Variable groups are useful for shared values and protected secrets.
+
+**How do you detect drift?**  
+Compare declared and effective sanitized configuration, use IaC/policy checks, monitor portal changes, and reconcile emergency edits.
+
+## Practical exercise
+
+Deploy one checksum-identical artifact twice with two non-secret configuration sets and secret references. Add schema validation. Generate a sanitized fingerprint and prove that a wrong endpoint fails before traffic is routed.
+
+## Official references
+
+- [Azure App Configuration best practices](https://learn.microsoft.com/azure/azure-app-configuration/howto-best-practices)
+- [Variables in Azure Pipelines](https://learn.microsoft.com/azure/devops/pipelines/process/variables)
+
+[Next: Approvals, Checks, and Exclusive Locks →](07-approvals-checks-and-exclusive-locks.md)

@@ -1,37 +1,92 @@
 # Build Once, Deploy Many
 
-> Chapter 6 — Continuous Integration Design
+[← Chapter 6](README.md) · [Next: Deterministic Builds →](02-deterministic-and-reproducible-builds.md)
 
-[Chapter home](README.md) · [Next →](02-deterministic-and-reproducible-builds.md)
+## Purpose
 
-## Learning objectives
+**Build once, deploy many** means CI creates one immutable release candidate and every environment consumes that exact artifact. Development, test, staging, and production may use different configuration, but they must not receive separately compiled binaries.
 
-- Explain the purpose and core concepts of build once, deploy many.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+## Why rebuilding is dangerous
 
-## Content
+A later rebuild can resolve a newer transitive dependency, use a changed base image, run on a different toolchain, or include an altered script. Even if the Git commit is unchanged, the output may differ. Tests then certify one binary while production receives another.
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+The desired chain is:
 
-## Hands-on exercise
+```text
+commit → CI run → tests → immutable artifact
+                              ↓
+                       Dev → Test → Prod
+```
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+Promotion changes the artifact's **release state**, not its contents.
 
-## Production considerations
+## Design rules
 
-Document security, reliability, maintainability, cost, and governance implications.
+1. Build from a known source revision.
+2. Restore pinned dependencies and record tool versions.
+3. Run tests before publishing the candidate.
+4. Publish once with a unique identity.
+5. Download the same artifact in every deployment stage or pipeline.
+6. Keep environment-specific values outside the binary.
+7. record the artifact name, version, hash or image digest, run ID, and commit SHA.
 
-## Discussion questions
+Configuration can come from environment variables, deployment manifests, a configuration service, or a secret store. Never place production secrets in the CI artifact.
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+A common Azure Pipelines pattern is:
 
-## Further reading
+```yaml
+steps:
+- script: ./build.sh
+  displayName: Build and test
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)'
+    artifact: 'application'
+```
 
-Add current, authoritative Microsoft or upstream product documentation here.
+Deployment consumes the published artifact rather than invoking the compiler again.
 
+## What “immutable” requires
+
+A unique filename alone is insufficient. Prevent overwriting, avoid mutable container tags as the sole identifier, restrict publisher permissions, and retain released outputs. For containers, deploy the image digest when possible; a tag such as `latest` can point somewhere else later.
+
+## Failure patterns
+
+- Building separately inside every environment.
+- Injecting configuration by modifying packaged files after approval.
+- Publishing a mutable version repeatedly.
+- Copying an artifact manually without its metadata.
+- Testing a debug build and releasing an independently produced optimized build.
+
+If transformation is unavoidable, treat its output as a new artifact and run the required validation again.
+
+## Operational checklist
+
+- Can production identify the exact CI run?
+- Can that run identify the commit and dependency inputs?
+- Are artifact hashes or image digests recorded?
+- Can an old release be retrieved for rollback?
+- Are configuration and secrets supplied at deployment time?
+- Is promotion auditable and permission-controlled?
+
+## Interview preparation
+
+**Why not rebuild the same commit for production?**  
+Source equality does not guarantee binary equality. Dependencies, tools, base images, time, and build infrastructure can change. Promotion preserves the tested artifact.
+
+**How do you handle environment differences?**  
+Keep deploy-time configuration outside the compiled artifact and bind it through approved configuration and secret mechanisms.
+
+**Is copying a package to another feed still build once?**  
+Yes, if the bytes and identity remain verifiably unchanged. Prefer promoting metadata or views when the package system supports it.
+
+## Practical exercise
+
+Produce an artifact, calculate its checksum, and deploy it to two local directories using different configuration files. Verify the checksum is identical in both. Then rebuild from the same commit after changing one dependency and observe why the rebuilt output cannot inherit the original approval.
+
+## Official references
+
+- [Publish and download pipeline artifacts](https://learn.microsoft.com/azure/devops/pipelines/artifacts/pipeline-artifacts)
+- [Azure Pipelines artifacts overview](https://learn.microsoft.com/azure/devops/pipelines/artifacts/artifacts-overview)
+
+[Next: Deterministic and Reproducible Builds →](02-deterministic-and-reproducible-builds.md)
