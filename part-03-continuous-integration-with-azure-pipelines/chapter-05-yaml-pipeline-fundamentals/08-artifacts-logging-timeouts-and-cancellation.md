@@ -4,34 +4,113 @@
 
 [← Previous](07-expressions-conditions-dependencies-and-outputs.md) · [Chapter home](README.md)
 
-## Learning objectives
+## Purpose
 
-- Explain the purpose and core concepts of artifacts, logging, timeouts, and cancellation.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+Jobs are isolated and temporary. Artifacts move durable files; logs and published results provide evidence; timeouts and cancellation keep failure bounded.
 
-## Content
+## Pipeline artifacts
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+Publish files needed by later jobs or users:
 
-## Hands-on exercise
+```yaml
+steps:
+- publish: $(Build.ArtifactStagingDirectory)
+  artifact: application
+```
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+A dependent job can download the current run's artifact:
 
-## Production considerations
+```yaml
+steps:
+- download: current
+  artifact: application
+```
 
-Document security, reliability, maintainability, cost, and governance implications.
+Artifacts become available to following dependent jobs. Use explicit names and paths. Do not include source secrets, credentials, unneeded caches, or sensitive diagnostics.
 
-## Discussion questions
+Pipeline Artifacts are supported for Azure DevOps Services; Azure DevOps Server scenarios may require Build Artifacts tasks. Verify platform version.
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+## Logs and results
+
+Logs should answer:
+
+- What source and configuration ran?
+- Which tool versions were used?
+- What failed first?
+- Which artifact was produced?
+- Where are test and analysis results?
+
+Publish structured test and coverage results rather than relying only on console text.
+
+Use logging commands carefully. The agent interprets specially formatted stdout to set variables, upload data, create log issues, or change task outcome. Never compose logging commands from untrusted data without validation.
+
+## Diagnostics
+
+Enable system diagnostics only for troubleshooting and treat resulting logs as sensitive. Avoid shell tracing around secret commands. Record environment and tool versions without dumping all environment variables.
+
+## Timeouts
+
+Define bounded job timeouts for expected workloads. A timeout should be long enough for legitimate variation but short enough to release capacity and signal a hang.
+
+Also consider:
+
+- Task-specific timeout/retry behavior
+- Hosted-agent maximums
+- Cancellation timeout for cleanup
+- External operation timeout
+- Approval/check timeout in later deployment stages
+
+A retry can help transient infrastructure operations but can hide deterministic test failures. Retry only operations that are safe and idempotent.
+
+## Cancellation
+
+Cancellation propagates through the dependency graph. A running process must handle termination and release resources. Cleanup should:
+
+- Be idempotent
+- Have minimal credentials
+- Run only when necessary
+- Respect a bounded cancellation window
+- Avoid creating new deployments after cancellation
+- Preserve useful diagnostics
+
+An always condition does not make a step immortal.
+
+## Retention
+
+Artifact and log retention affects diagnosis, audit, and cost. Pin or retain important release runs according to policy. Do not rely on a default retention period without checking production evidence requirements.
+
+## Common mistakes
+
+- Sharing files through assumed agent persistence
+- Publishing the entire workspace
+- Logging every environment variable
+- Encoding secrets in artifact names or metadata
+- Infinite or excessive timeouts
+- Retrying non-idempotent deployment operations
+- Using always() to run dangerous actions after cancellation
+- Deleting run history needed to investigate production
+- Treating logs as harmless public data
+
+## Interview preparation
+
+**Q: How do jobs share files?**  
+Publish a pipeline/build artifact in the producer and download it in a dependent consumer; do not assume the same agent workspace.
+
+**Q: Logging command risk?**  
+The agent interprets specially formatted output as control instructions. Protect secrets and do not allow untrusted content to forge commands.
+
+**Q: Why define timeouts?**  
+To bound hung work, protect capacity, and produce a clear failure. Pair with safe cancellation and diagnostics.
+
+**Q: Can always() run after cancellation?**  
+It can cause work to run under canceled status, but job cancellation timeout and termination still constrain it. Conditions must also avoid unsafe actions.
+
+## Practical exercise
+
+Publish a file in one job, download it in another, publish structured test results, set a warning via a logging command, force a timeout in a disposable job, and observe cleanup during cancellation.
 
 ## Further reading
 
-Add current, authoritative Microsoft or upstream product documentation here.
-
+- [Publish and download pipeline artifacts](https://learn.microsoft.com/azure/devops/pipelines/artifacts/pipeline-artifacts)
+- [Logging commands](https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands)
+- [Jobs and timeouts](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/phases)

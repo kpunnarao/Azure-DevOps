@@ -1,37 +1,64 @@
 # Variable Groups, Secure Files, and Key Vault
 
-> Chapter 9 — Environments and Multi-stage Deployment Pipelines
+[← Service Connections](04-service-connections.md) · [Chapter 9](README.md) · [Next: Environment Configuration →](06-environment-specific-configuration.md)
 
-[← Previous](04-service-connections.md) · [Chapter home](README.md) · [Next →](06-environment-specific-configuration.md)
+## Choose storage by data type
 
-## Learning objectives
+| Need | Appropriate mechanism |
+|---|---|
+| Shared non-secret values | Variable group or versioned config |
+| Secret scalar values | Secret variables or external secret store |
+| Azure Key Vault secrets at runtime | Key Vault-linked variable group or task |
+| Certificate, keystore, provisioning profile | Secure file |
+| Cloud authentication | Service connection/workload identity |
+| Large structured non-secret config | Configuration file/service, not many variables |
 
-- Explain the purpose and core concepts of variable groups, secure files, and key vault.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+Do not use one mechanism for convenience when its security and lifecycle do not match the data.
 
-## Content
+## Variable groups
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+Variable groups share values across pipelines. Secret variables in a group make it a protected resource. Authorize specific YAML pipelines; merely naming a group in YAML must not grant access, because a contributor could add a step that exfiltrates secrets.
 
-## Hands-on exercise
+```yaml
+variables:
+- group: orders-production
+```
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+Secret masking is not a complete data-loss-prevention system. Avoid printing secrets, substrings may not be masked, and command-line arguments can appear in process or diagnostic output.
 
-## Production considerations
+## Secure files
 
-Document security, reliability, maintainability, cost, and governance implications.
+Secure files store sensitive file material such as certificates, SSH keys, keystores, and provisioning profiles. They are encrypted at rest and support pipeline permissions and checks. Download them through the supported task, minimize their lifetime on the agent, restrict file permissions, and ensure cleanup. Uploaded contents cannot simply be edited in place; manage replacement and references deliberately.
 
-## Discussion questions
+## Key Vault integration
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+A Key Vault-linked variable group maps selected **secret names**, and values are fetched when the pipeline runs. A changed value becomes available automatically, but newly added or deleted secret names do not automatically change the mapping. Azure Pipelines variable-group integration covers secrets, not Key Vault keys or certificates.
 
-## Further reading
+Network design matters. Private endpoints, firewalls, hosted-agent egress, the vault permission model, and service-connection identity all affect retrieval. For private networking, validate the current supported approach and consider a suitably networked self-hosted/managed agent with a direct Key Vault task.
 
-Add current, authoritative Microsoft or upstream product documentation here.
+## Secret rotation
 
+Applications should tolerate overlapping old/new credentials where possible. Rotate the source, verify deployment, revoke the old value, and record completion. A secret fetched dynamically can change without a Git diff, so preserve version/audit metadata without exposing the value.
+
+## Interview preparation
+
+**Why authorize a variable group to selected pipelines?**  
+Repository contributors can change YAML. Without pipeline authorization, they could add a step to consume or exfiltrate group secrets.
+
+**Key Vault-linked group limitation?**  
+It maps secrets only; keys/certificates are not supported through that integration, and new secret names require mapping updates.
+
+**Secure file versus secret variable?**  
+Use a secure file when a tool requires file-shaped sensitive material; use a secret variable for a scalar. Both require protected-resource permissions and careful agent handling.
+
+## Practical exercise
+
+Create a non-secret group, a protected secret group, and a disposable secure file. Authorize only one pipeline. Rotate a Key Vault secret value, add a new name, and observe the difference between value refresh and mapping refresh.
+
+## Official references
+
+- [Manage variable groups](https://learn.microsoft.com/azure/devops/pipelines/library/variable-groups)
+- [Link a variable group to Azure Key Vault](https://learn.microsoft.com/azure/devops/pipelines/library/link-variable-groups-to-key-vaults)
+- [Use secure files](https://learn.microsoft.com/azure/devops/pipelines/library/secure-files)
+
+[Next: Environment-specific Configuration →](06-environment-specific-configuration.md)
