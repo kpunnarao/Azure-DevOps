@@ -1,4 +1,4 @@
-# Azure DevOps: From Fundamentals to Expert Practice
+# Azure DevOps: From Fundamentals to Expert
 
 <div align="center">
 
@@ -56,16 +56,30 @@ By completing this curriculum, you should be able to:
 ## 🧭 Learning journey
 
 ```mermaid
-flowchart LR
-    A[📝 Plan<br/>Azure Boards] --> B[🌿 Code<br/>Azure Repos]
-    B --> C[⚙️ Build<br/>Azure Pipelines]
-    C --> D[🧪 Test<br/>Quality Gates]
-    D --> E[🛡️ Secure<br/>Compliance]
-    E --> F[📦 Package<br/>Artifacts]
-    F --> G[🚀 Deploy<br/>Environments]
-    G --> H[📊 Operate<br/>Monitor]
-    H --> I[💡 Learn<br/>Feedback]
-    I --> A
+flowchart TB
+    A["📝 <b>PLAN</b><br/>Azure Boards · Backlogs · Sprints"]
+    B["🌿 <b>CODE</b><br/>Azure Repos · Git · Pull Requests"]
+    C["⚙️ <b>BUILD & TEST</b><br/>Azure Pipelines · Quality Gates"]
+    D["🛡️ <b>SECURE & PACKAGE</b><br/>Compliance · Azure Artifacts"]
+    E["🚀 <b>RELEASE & DEPLOY</b><br/>Environments · Approvals · Strategies"]
+    F["📊 <b>OPERATE & LEARN</b><br/>Monitoring · Feedback · Improvement"]
+
+    A --> B --> C --> D --> E --> F
+    F -. "Continuous feedback" .-> A
+
+    classDef plan fill:#E8F3FF,stroke:#0078D4,stroke-width:2px,color:#10253F
+    classDef code fill:#E9F8F0,stroke:#16825D,stroke-width:2px,color:#12372B
+    classDef pipeline fill:#F1ECFF,stroke:#7252AA,stroke-width:2px,color:#291B45
+    classDef secure fill:#FFF4E5,stroke:#C96B13,stroke-width:2px,color:#4A290D
+    classDef deploy fill:#E8F7FA,stroke:#008C95,stroke-width:2px,color:#083B3F
+    classDef learn fill:#FDECF3,stroke:#C23973,stroke-width:2px,color:#4B1730
+
+    class A plan
+    class B code
+    class C pipeline
+    class D secure
+    class E deploy
+    class F learn
 ```
 
 ## 🧠 How to study each chapter
@@ -327,16 +341,42 @@ Create a feed, publish a package, consume it from another application, test its 
 ### Reference flow
 
 ```mermaid
-flowchart LR
-    A[Build] --> B[Unit Tests]
-    B --> C[Publish Artifact]
-    C --> D[Deploy Dev]
-    D --> E[Integration Tests]
-    E --> F[Deploy Test]
-    F --> G{Approval & Checks}
-    G -->|Approved| H[Deploy Production]
-    G -->|Rejected| I[Stop]
-    H --> J[Smoke Test]
+flowchart TB
+    subgraph CI["⚙️ Continuous Integration"]
+        direction TB
+        A["Build"] --> B["Unit Tests"] --> C["Publish Immutable Artifact"]
+    end
+
+    subgraph NP["🧪 Non-Production Validation"]
+        direction TB
+        D["Deploy to Development"] --> E["Integration Tests"] --> F["Deploy to Test"]
+    end
+
+    G{"🛡️ Production<br/>Approvals & Checks"}
+    H["🚀 Deploy to Production"]
+    I["⛔ Stop & Investigate"]
+    J["✅ Smoke Test & Verify Health"]
+    K["📊 Monitor & Collect Feedback"]
+
+    C --> D
+    F --> G
+    G -->|Approved| H
+    G -->|Rejected| I
+    H --> J --> K
+
+    classDef ci fill:#E8F3FF,stroke:#0078D4,stroke-width:2px,color:#10253F
+    classDef validation fill:#F1ECFF,stroke:#7252AA,stroke-width:2px,color:#291B45
+    classDef gate fill:#FFF4E5,stroke:#C96B13,stroke-width:2px,color:#4A290D
+    classDef success fill:#E9F8F0,stroke:#16825D,stroke-width:2px,color:#12372B
+    classDef stop fill:#FDECEC,stroke:#C43131,stroke-width:2px,color:#4A1515
+    classDef observe fill:#E8F7FA,stroke:#008C95,stroke-width:2px,color:#083B3F
+
+    class A,B,C ci
+    class D,E,F validation
+    class G gate
+    class H,J success
+    class I stop
+    class K observe
 ```
 
 ### Hands-on lab
