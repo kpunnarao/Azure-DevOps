@@ -1,37 +1,59 @@
 # Azure Monitor and Application Insights
 
-> Chapter 15 — Monitoring, Feedback, and Troubleshooting
+[← Observability Signals](01-logs-metrics-traces-and-observability.md) · [Chapter 15](README.md) · [Next: Health and Availability →](03-health-checks-and-availability-tests.md)
 
-[← Previous](01-logs-metrics-traces-and-observability.md) · [Chapter home](README.md) · [Next →](03-health-checks-and-availability-tests.md)
+## Azure-native telemetry platform
 
-## Learning objectives
+Azure Monitor brings together platform metrics, Logs/Log Analytics, Application Insights, alerts, workbooks, dashboards, managed Prometheus, diagnostic settings, and related experiences. Application Insights monitors application requests, dependencies, exceptions, traces, custom events/metrics, and distributed transactions; data is stored through a Log Analytics workspace connection.
 
-- Explain the purpose and core concepts of azure monitor and application insights.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+Use the current Azure Monitor OpenTelemetry distributions for supported application stacks unless a specific constraint requires another path.
 
-## Content
+## Architecture
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+Define:
 
-## Hands-on exercise
+- Application Insights resource/workspace topology by ownership, access, residency, retention, and query needs.
+- Diagnostic settings for Azure resources.
+- Data collection rules/transforms where appropriate.
+- Private ingestion/query requirements.
+- Managed identities and RBAC for queries/alerts/export.
+- Sampling and daily caps with explicit data-loss behavior.
+- Archive/export/SIEM path for security/compliance.
+- Cost budgets and usage monitoring.
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+Shared workspaces simplify cross-service analysis but expand access and transformation impact. Separate when data sensitivity, residency, ownership, or blast radius requires it.
 
-## Production considerations
+## KQL and investigation
 
-Document security, reliability, maintainability, cost, and governance implications.
+Kusto Query Language turns telemetry into evidence. Start with time range and affected service/version, then requests/errors, dependencies, exceptions, traces, and resource health. Join using operation/trace identifiers and deployment annotations.
 
-## Discussion questions
+Preserve reusable queries as version-controlled artifacts where possible. A dashboard without definitions/owner can drift into decorative monitoring.
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+## Data quality
 
-## Further reading
+Validate SDK initialization, service/resource names, environment/version tags, clock accuracy, sampling, exception capture, dependency instrumentation, ingestion latency, and schema changes. Emit a controlled synthetic signal and verify end-to-end arrival.
 
-Add current, authoritative Microsoft or upstream product documentation here.
+Ingestion transformations can filter or modify data but may affect every application sharing a table/workspace. Test scope carefully and never rely on destructive filtering without governance.
 
+## Interview preparation
+
+**Azure Monitor versus Application Insights?**  
+Azure Monitor is the overall monitoring platform; Application Insights is its application-performance/observability capability.
+
+**Why workspace design matters?**  
+It controls access, retention, cost, residency, transformations, cross-service querying, and blast radius.
+
+**What is first when telemetry disappears?**  
+Verify application emission/export, credentials/network, sampling/configuration, ingestion health/quota, resource/workspace mapping, and time range before concluding the app is healthy.
+
+## Practical exercise
+
+Send requests, dependencies, exceptions, logs, and a custom business event. Query them by operation and version, build a workbook, restrict one reader, test retention/sampling, and create a telemetry-pipeline health alert.
+
+## Official references
+
+- [Application Insights overview](https://learn.microsoft.com/azure/azure-monitor/app/app-insights-overview)
+- [Application Insights telemetry model](https://learn.microsoft.com/azure/azure-monitor/app/data-model-complete)
+- [Azure Monitor Logs and KQL](https://learn.microsoft.com/azure/azure-monitor/logs/log-query-overview)
+
+[Next: Health Checks and Availability Tests →](03-health-checks-and-availability-tests.md)

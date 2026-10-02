@@ -1,37 +1,75 @@
-# Scenario-Based Interview Preparation
+# Scenario-based Interview Preparation
 
-> Chapter 18 — AZ-400 Preparation and Career Development
+[← Practice and Gap Analysis](03-practice-assessments-and-gap-analysis.md) · [Chapter 18](README.md) · [Next: Portfolio and Teaching →](05-portfolio-teaching-and-continuous-development.md)
 
-[← Previous](03-practice-assessments-and-gap-analysis.md) · [Chapter home](README.md) · [Next →](05-portfolio-teaching-and-continuous-development.md)
+## Answer as an engineer
 
-## Learning objectives
+Use this structure:
 
-- Explain the purpose and core concepts of scenario-based interview preparation.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+1. Clarify outcome, scale, risk, constraints, and current state.
+2. State assumptions.
+3. Offer viable options.
+4. Recommend one and explain tradeoffs.
+5. Describe implementation and trust boundary.
+6. Define failure/recovery.
+7. Define evidence/metrics.
+8. State rollout/migration and revisit trigger.
 
-## Content
+Avoid reciting features without connecting them to the problem.
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+## Core scenarios
 
-## Hands-on exercise
+Practice aloud:
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+- Design Azure DevOps topology for regulated and ordinary teams.
+- Secure PR validation while deploying privately.
+- Choose hosted, Managed DevOps Pools, or self-hosted agents.
+- Reduce 25-minute pipeline without weakening evidence.
+- Version and migrate central YAML templates.
+- Prevent artifact substitution across environments.
+- Choose Bicep/Terraform and protect state/destruction.
+- Design canary plus compatible database migration.
+- Respond to leaked PAT and compromised build agent.
+- Build SLO alerts and decide rollback/roll-forward.
+- Migrate classic releases or Azure DevOps organization.
+- Balance platform standardization and team autonomy.
+- Diagnose skipped stage, queued agent, 403 feed, empty artifact, noisy probe.
 
-## Production considerations
+## Behavioral evidence
 
-Document security, reliability, maintainability, cost, and governance implications.
+Prepare STAR/CAR stories for a production incident, security improvement, pipeline performance improvement, conflict/tradeoff, failed design, mentoring/teaching, migration, cost reduction, and ambiguity.
 
-## Discussion questions
+Use sanitized facts and quantify baseline, action, outcome, guardrails, and learning. Never disclose employer secrets.
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+## Whiteboard artifacts
 
-## Further reading
+Practice drawing:
 
-Add current, authoritative Microsoft or upstream product documentation here.
+- CI/CD trust chain and identities.
+- Azure DevOps organization/project/team/resource model.
+- Build-once promotion.
+- Agent trust zones/network.
+- IaC plan/state flow.
+- AKS image-to-pod chain.
+- Progressive deployment health loop.
+- Observability correlation and SLO.
+- Incident timeline.
+- Platform product/exception flow.
 
+A diagram should show ownership, boundaries, data/credential flow, failure, and evidence—not only boxes.
+
+## Interviewer follow-ups
+
+Expect: Why not alternative? How scale? What fails? How secure? How migrate? What costs? How verify? What would change your decision? Answer uncertainty honestly and explain verification.
+
+## Practical exercise
+
+Record ten 8-minute scenario answers and two 30-minute designs. Score clarity, constraints, alternatives, security, operations, metrics, and concision. Ask a peer to challenge assumptions.
+
+## Official references
+
+- [Azure Architecture Center](https://learn.microsoft.com/azure/architecture/)
+- [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-architected/)
+- [Microsoft Cloud Adoption Framework](https://learn.microsoft.com/azure/cloud-adoption-framework/)
+
+[Next: Portfolio, Teaching, and Continuous Development →](05-portfolio-teaching-and-continuous-development.md)

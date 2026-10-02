@@ -1,37 +1,56 @@
 # Organization, Project, and Team Boundaries
 
-> Chapter 16 — Governance, Scaling, and Platform Engineering
+[← Chapter 16](README.md) · [Next: Platform and Product Ownership →](02-platform-teams-and-product-team-ownership.md)
 
-[Chapter home](README.md) · [Next →](02-platform-teams-and-product-team-ownership.md)
+## Boundaries have consequences
 
-## Learning objectives
+An Azure DevOps organization is the top cloud-service administration/billing/identity boundary. Projects contain Boards, Repos, Pipelines, Test Plans, Artifacts, teams, and permissions. Teams provide backlog/board/iteration views through area and iteration configuration. Repositories and protected resources add object-level boundaries.
 
-- Explain the purpose and core concepts of organization, project, and team boundaries.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+Do not create one project per application automatically. Projects increase isolation and administrative independence but make cross-project queries, artifacts, permissions, templates, service identities, and portfolio reporting more complex.
 
-## Content
+Microsoft documentation describes both single-project scaling and multiple-project designs and publishes current service/object limits. Limits are capacity constraints, not architecture targets.
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+## Decision criteria
 
-## Hands-on exercise
+Create separate organizations when tenant, geography/data residency, acquisition, contractual isolation, billing/administration, or policy autonomy demands it. Cross-organization collaboration and migration are materially harder.
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+Create separate projects for strong security/administration/process boundaries, external collaboration isolation, business-unit autonomy, or scale. Use teams within a project when products share process, identity, reporting, and resources but need distinct backlogs/iterations.
 
-## Production considerations
+Keep repositories aligned to independently versioned/deployed ownership. A monorepo can simplify atomic cross-component change while increasing CI selection and permission complexity.
 
-Document security, reliability, maintainability, cost, and governance implications.
+## Area/iteration ownership
 
-## Discussion questions
+Teams select area paths for backlogs and iteration paths for cadence. Overlapping team ownership can double-count work and confuse reporting. Define one primary owning team and deliberate portfolio rollups.
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+Process customization applies broadly. Govern fields/states so teams do not create incompatible reporting vocabularies.
 
-## Further reading
+## Security
 
-Add current, authoritative Microsoft or upstream product documentation here.
+Use private projects by default. Manage membership through Entra groups. Limit project/collection administrators and visibility. Object-level isolation inside one project may not satisfy hard tenant/data boundaries. Evaluate guests, service identities, feeds, pools, service connections, and analytics—not repositories alone.
 
+## Migration cost
+
+Moving work items, repos, pipelines, histories, permissions, Test Plans, artifacts, dashboards, and links between projects/organizations is not equally supported. Choose boundaries deliberately and document exit/migration before scale.
+
+## Interview preparation
+
+**One project or many?**  
+One improves shared reporting/collaboration and reduces administration; many strengthen autonomy/isolation. Decide from ownership, process, security, scale, and migration—not team count alone.
+
+**Team versus project?**  
+A team is a planning/configuration view within a project; a project is a broader resource, permission, and process boundary.
+
+**What is hardest to change later?**  
+Cross-organization/project identities, links/history, pipelines/resources, artifacts and process/reporting relationships. Test migration early.
+
+## Practical exercise
+
+Model three teams with shared services and one regulated workload. Produce two topology options, permission/tracing impact, limits, cost, and migration tradeoffs; select one with an ADR.
+
+## Official references
+
+- [About projects and enterprise scaling](https://learn.microsoft.com/azure/devops/organizations/projects/about-projects)
+- [Plan organizational structure](https://learn.microsoft.com/azure/devops/user-guide/plan-your-azure-devops-org-structure)
+- [Work tracking and project limits](https://learn.microsoft.com/azure/devops/organizations/settings/work/object-limits)
+
+[Next: Platform Teams and Product-team Ownership →](02-platform-teams-and-product-team-ownership.md)

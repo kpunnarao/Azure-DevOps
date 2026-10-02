@@ -1,37 +1,65 @@
 # Azure Kubernetes Service
 
-> Chapter 12 — Containers, Azure Container Registry, and Kubernetes
+[← Kubernetes Core Resources](05-kubernetes-core-resources.md) · [Chapter 12](README.md) · [Next: Helm, Kustomize, and GitOps →](07-helm-kustomize-and-gitops.md)
 
-[← Previous](05-kubernetes-core-resources.md) · [Chapter home](README.md) · [Next →](07-helm-kustomize-and-gitops.md)
+## Managed does not mean unmanaged by you
 
-## Learning objectives
+AKS provides a managed Kubernetes control plane. Microsoft and customers share responsibility. You still own workload configuration, identities/RBAC, node pools and upgrade choices, networking, policies, secrets, data protection, observability, capacity, backup/recovery, and application availability.
 
-- Explain the purpose and core concepts of azure kubernetes service.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+AKS offers Automatic and Standard operating modes with different degrees of preconfiguration/control. Select from current support, workload constraints, security responsibility, and required customization—not only initial convenience.
 
-## Content
+## Architecture decisions
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+- Region, availability zones, and failure domains.
+- Private/public API server access and authorized networks.
+- Azure CNI/network model, IP capacity, egress, DNS, and network policy.
+- System and user node pools, VM sizes, taints/tolerations, autoscaling.
+- Microsoft Entra integration, Azure/Kubernetes RBAC, and admin access.
+- Managed identity and workload identity/OIDC.
+- ACR pull integration.
+- Policy/admission and Pod Security.
+- Upgrade and node OS update channels/maintenance windows.
+- Logs, metrics, managed Prometheus/Grafana/Application Insights as appropriate.
+- Persistent data, backup, restore, and regional recovery.
 
-## Hands-on exercise
+IP exhaustion and egress/firewall dependencies are common production failures; capacity-plan both before cluster creation.
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+## Identity layers
 
-## Production considerations
+Human/operator access uses Microsoft Entra ID and Kubernetes/Azure RBAC. The cluster/control-plane identity manages Azure resources required by AKS. Kubelet identity can pull from ACR. Workload identity lets Pods exchange service-account identity for Microsoft Entra tokens to access Azure services without embedded secrets.
 
-Document security, reliability, maintainability, cost, and governance implications.
+Do not confuse these identities or give the workload the node/cluster identity.
 
-## Discussion questions
+## Upgrades
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+Kubernetes has a support lifecycle. Test control-plane/node and API-version upgrades in representative environments, detect removed APIs, use disruption budgets carefully, maintain capacity for surge, and validate add-ons/controllers. Node image/OS patching is separate from application image rebuilding.
 
-## Further reading
+Automatic channels reduce toil but still require compatibility testing, maintenance planning, and observability.
 
-Add current, authoritative Microsoft or upstream product documentation here.
+## Security and operations
 
+Use least privilege, private networking where required, policy/admission, supported versions, nonprivileged workloads, image governance, network policies, secrets integration, Defender where applicable, and audit/diagnostic logs. Keep system workloads isolated from application pressure with system pools and resource reservations.
+
+## Interview preparation
+
+**What does Microsoft manage in AKS?**  
+The Kubernetes control plane service; responsibility for workload, nodes/settings, network, identity, data, policy, upgrades choices, and operations remains shared/customer-heavy.
+
+**Managed identity versus workload identity?**  
+Managed identities represent Azure resources; AKS workload identity federates a Kubernetes service account to a Microsoft Entra application/managed identity for a specific workload.
+
+**Why separate node pools?**  
+To isolate system/application or workload classes, use different VM/OS/configuration, apply taints, scale independently, and limit blast radius.
+
+## Practical exercise
+
+Diagram every identity and network path in an AKS sandbox. Deploy a workload using its own service account/workload identity to read one allowed Azure resource. Deny broader access. Simulate a node drain and verify disruption/capacity behavior.
+
+## Official references
+
+- [AKS core concepts](https://learn.microsoft.com/azure/aks/core-aks-concepts)
+- [Secure an AKS deployment](https://learn.microsoft.com/azure/aks/secure-aks)
+- [AKS cluster security and upgrade practices](https://learn.microsoft.com/azure/aks/operator-best-practices-cluster-security)
+- [AKS workload identity](https://learn.microsoft.com/azure/aks/workload-identity-overview)
+
+[Next: Helm, Kustomize, and GitOps →](07-helm-kustomize-and-gitops.md)

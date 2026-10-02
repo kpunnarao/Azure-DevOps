@@ -1,37 +1,65 @@
 # Delivery Performance Metrics
 
-> Chapter 15 — Monitoring, Feedback, and Troubleshooting
+[← Alerts and Incidents](06-actionable-alerts-and-incident-management.md) · [Chapter 15](README.md) · [Next: Pipeline Analytics →](08-pipeline-analytics-and-troubleshooting.md)
 
-[← Previous](06-actionable-alerts-and-incident-management.md) · [Chapter home](README.md) · [Next →](08-pipeline-analytics-and-troubleshooting.md)
+## Measure the system
 
-## Learning objectives
+Common DORA delivery measures include:
 
-- Explain the purpose and core concepts of delivery performance metrics.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+- Deployment frequency.
+- Change lead time.
+- Change failure rate.
+- Failed deployment recovery time.
+- Recent DORA research also discusses rework rate in its software-delivery performance model.
 
-## Content
+Use current definitions from the research source and define locally which deployments, timestamps, failures, and recovery events qualify.
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+These measures balance throughput and stability. They are not individual productivity scores and should not become targets that encourage tiny meaningless deployments, hidden failures, or premature incident closure.
 
-## Hands-on exercise
+## Supporting measures
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+- PR review and queue time.
+- CI feedback and time to first actionable failure.
+- Pipeline queue/duration/retry/infrastructure failure.
+- Batch size and work-in-progress age.
+- Deployment duration and progressive-exposure time.
+- Flake rate and escaped defects.
+- Error-budget consumption.
+- Manual handoff/wait time.
+- Reliability/security debt age.
 
-## Production considerations
+Use flow analysis to find constraints. Faster coding does not help if approval or environment queues dominate lead time.
 
-Document security, reliability, maintainability, cost, and governance implications.
+## Data model
 
-## Discussion questions
+Connect work/commit → PR → CI artifact → deployment → incident/recovery. Preserve immutable IDs and timestamps. Distinguish business lead time from code-commit lead time. Account for rollbacks, feature flags, configuration-only releases, canceled runs, and multi-service deployments.
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+Report distributions and percentiles, not only averages. Segment by service and deployment type; aggregate comparisons can mislead.
 
-## Further reading
+## Responsible use
 
-Add current, authoritative Microsoft or upstream product documentation here.
+Metrics should help a stable team improve its own system over time. Avoid ranking teams with different architectures, compliance burdens, incident classifications, or data quality. Pair quantitative trend with qualitative review.
 
+When a metric improves suddenly, verify the process did not redefine or stop recording unfavorable events.
+
+## Interview preparation
+
+**Why pair speed and stability?**  
+Optimizing only speed can increase failures; optimizing only avoidance can create large risky batches. High performance seeks frequent small change with reliable recovery.
+
+**What is lead time?**  
+Define it explicitly. DORA change lead time commonly follows code committed to successfully running in production; broader idea-to-value time is useful but different.
+
+**How avoid gaming?**  
+Use balanced measures, transparent definitions, automated lineage, distributions, qualitative review, and no individual ranking.
+
+## Practical exercise
+
+Calculate metrics from ten sample deployments and two incidents. Change definitions and observe results, validate outliers, find the largest waiting state, and propose one experiment with a guardrail metric.
+
+## Official references
+
+- [DORA research](https://dora.dev/research/)
+- [DORA guides](https://dora.dev/guides/)
+
+[Next: Pipeline Analytics and Troubleshooting →](08-pipeline-analytics-and-troubleshooting.md)

@@ -1,37 +1,57 @@
 # Actionable Alerts and Incident Management
 
-> Chapter 15 — Monitoring, Feedback, and Troubleshooting
+[← Deployment Markers](05-deployment-markers-and-release-annotations.md) · [Chapter 15](README.md) · [Next: Delivery Performance →](07-delivery-performance-metrics.md)
 
-[← Previous](05-deployment-markers-and-release-annotations.md) · [Chapter home](README.md) · [Next →](07-delivery-performance-metrics.md)
+## An alert demands action
 
-## Learning objectives
+Page on urgent user-impact symptoms or rapid error-budget burn. Create tickets/messages for lower urgency. Dashboards support investigation; they are not alerts.
 
-- Explain the purpose and core concepts of actionable alerts and incident management.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+Every alert needs owner, severity, affected service/environment, condition/window, customer impact, current value/threshold, version/change context, dashboard/query, runbook, escalation, and resolution criteria.
 
-## Content
+## Signal design
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+Prefer availability, latency, correctness, queue delay, and critical business failures over raw CPU alone. Resource saturation can be useful when it is predictive/actionable. Use multiple evaluation periods, dimensions, and dynamic thresholds where appropriate, but test behavior.
 
-## Hands-on exercise
+Missing telemetry needs explicit treatment. An alert query returning no rows may mean healthy, broken ingestion, or down service.
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+Azure Monitor action groups route notifications/automation; alert processing rules can manage behavior at scale or during planned maintenance. Use secure webhooks/managed identities where supported. Monitor notification delivery and avoid a single channel.
 
-## Production considerations
+## Incident process
 
-Document security, reliability, maintainability, cost, and governance implications.
+1. Detect and acknowledge.
+2. Assign incident commander and communications/operations roles proportionate to severity.
+3. Establish impact, scope, timeline, and current version.
+4. Stabilize: stop rollout, shed load, disable feature, rollback/forward.
+5. Preserve evidence and record decisions.
+6. Diagnose without delaying restoration unnecessarily.
+7. Validate customer recovery and monitor.
+8. Communicate closure.
+9. Run a blameless review and track actions to completion.
 
-## Discussion questions
+A runbook is a decision aid with prerequisites, safe commands, verification, rollback, owners, and escalation—not a wall of outdated commands.
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+## Alert quality
 
-## Further reading
+Measure precision/actionability, missed incidents, acknowledgement time, pages per responder, duplicate alerts, alert-to-incident ratio, runbook success, and toil. Tune after incidents and architecture changes. Never solve noise by muting unreviewed critical alerts indefinitely.
 
-Add current, authoritative Microsoft or upstream product documentation here.
+## Interview preparation
 
+**Symptom versus cause alert?**  
+Symptom alert pages on user harm; cause telemetry assists diagnosis or warns when a known leading indicator is reliably actionable.
+
+**What is first during incident?**  
+Protect people/service: establish command, scope impact, stop further exposure, and choose safe mitigation while preserving evidence.
+
+**What makes an alert actionable?**  
+Named owner, meaningful urgency, context, reliable signal, documented action, and clear resolution.
+
+## Practical exercise
+
+Create a burn-rate/page alert and a lower-urgency saturation ticket alert. Test action group delivery, inject failure, run the incident roles, restore service, and eliminate one noisy duplicate.
+
+## Official references
+
+- [Azure Monitor alert best practices](https://learn.microsoft.com/azure/azure-monitor/alerts/best-practices-alerts)
+- [Azure Monitor action groups](https://learn.microsoft.com/azure/azure-monitor/alerts/action-groups)
+
+[Next: Delivery Performance Metrics →](07-delivery-performance-metrics.md)

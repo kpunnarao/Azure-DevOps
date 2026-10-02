@@ -1,37 +1,72 @@
 # Modules and Environment Parameters
 
-> Chapter 11 — Infrastructure as Code
+[← Bicep, ARM, and Terraform](02-bicep-arm-and-terraform.md) · [Chapter 11](README.md) · [Next: Terraform State →](04-terraform-state-locking-and-remote-backends.md)
 
-[← Previous](02-bicep-arm-and-terraform.md) · [Chapter home](README.md) · [Next →](04-terraform-state-locking-and-remote-backends.md)
+## Modules are infrastructure APIs
 
-## Learning objectives
+A module encapsulates a cohesive resource capability behind inputs and outputs. Its public contract includes parameter types/defaults, naming, resources created, outputs, required permissions, lifecycle/replacement behavior, supported versions, and policy assumptions.
 
-- Explain the purpose and core concepts of modules and environment parameters.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+Good boundaries follow ownership and lifecycle: network foundation, registry, database, or application hosting unit. A module that creates an entire enterprise from dozens of booleans becomes hard to test and upgrade.
 
-## Content
+## Environment variation
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+Use one module implementation with small, reviewed environment parameter sets:
 
-## Hands-on exercise
+```text
+modules/
+  container-registry/
+environments/
+  dev/parameters
+  production/parameters
+```
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+Parameters express genuine variation: region, SKU, capacity, network IDs, allowed identities, retention, and availability settings. Do not copy entire modules per environment.
 
-## Production considerations
+Never store secrets in parameter files or Terraform `.tfvars` committed to Git. Pass secret references or retrieve values using managed identity. Terraform state can still contain sensitive values even when an input is marked sensitive.
 
-Document security, reliability, maintainability, cost, and governance implications.
+## Stable interface design
 
-## Discussion questions
+- Use descriptive typed inputs and safe defaults.
+- Validate allowed patterns/ranges.
+- Avoid exposing every low-level provider property.
+- Output identifiers, endpoints, and principal IDs needed by consumers.
+- Do not output credentials.
+- Document replacement effects.
+- Keep implicit resource creation minimal.
+- Include examples and negative tests.
+- Version releases and publish migration notes.
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+Bicep modules can be shared through private registries or template specs. Terraform modules can use a registry or versioned source reference. Pin consumers; a branch reference can change without consumer review.
 
-## Further reading
+## Composition
 
-Add current, authoritative Microsoft or upstream product documentation here.
+The root module composes capabilities and environment policy. Avoid deeply nested modules and circular dependencies. Pass explicit outputs to inputs instead of recomputing names or reading remote state broadly.
 
+For cross-stack values, prefer stable platform discovery mechanisms or narrowly exposed outputs. Remote-state consumption can expose more data than intended and tightly couple lifecycles.
+
+## Versioning
+
+A change is breaking if it renames/removes inputs or outputs, changes defaults materially, replaces resources, changes names/identity, requires broader permissions, or alters ownership. Release a new major contract and give consumers a migration path.
+
+## Interview preparation
+
+**Module versus copy/paste?**  
+A module provides one tested, versioned contract and upgrade path; copies drift and multiply fixes.
+
+**What belongs in an environment file?**  
+Only deliberate environmental variation—not resource logic, credentials, or an entire duplicated definition.
+
+**Why avoid too many outputs?**  
+They create coupling and may expose sensitive/internal implementation details that prevent module evolution.
+
+## Practical exercise
+
+Create a registry module with SKU, location, retention, and network inputs plus ID/login-server outputs. Instantiate Development and Production with different parameter files. Introduce a breaking naming change and write migration guidance without destroying the registry.
+
+## Official references
+
+- [Bicep modules](https://learn.microsoft.com/azure/azure-resource-manager/bicep/modules)
+- [Bicep best practices](https://learn.microsoft.com/azure/azure-resource-manager/bicep/best-practices)
+- [Terraform module development](https://developer.hashicorp.com/terraform/language/modules/develop)
+
+[Next: Terraform State, Locking, and Remote Backends →](04-terraform-state-locking-and-remote-backends.md)

@@ -1,37 +1,63 @@
 # CLI, REST APIs, and Service Hooks
 
-> Chapter 16 — Governance, Scaling, and Platform Engineering
+[← Extension Governance](07-extension-governance.md) · [Chapter 16](README.md) · [Next: Enterprise Tradeoffs →](09-cost-continuity-migration-and-developer-experience.md)
 
-[← Previous](07-extension-governance.md) · [Chapter home](README.md) · [Next →](09-cost-continuity-migration-and-developer-experience.md)
+## Automation principles
 
-## Learning objectives
+Use CLI for operator workflows, REST/SDK for repeatable integrations and inventory, and service hooks/webhooks for event-driven notification. Automation needs application identity, least privilege, idempotency, pagination, retries, rate-limit handling, schema/version control, audit, and reconciliation.
 
-- Explain the purpose and core concepts of cli, rest apis, and service hooks.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+Prefer Microsoft Entra application identity over PAT for Azure DevOps Services automation. Never put credentials in command arguments, source, or webhook URLs.
 
-## Content
+## Safe API client
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+- Pin/document API version.
+- Set bounded timeouts.
+- Retry only transient/idempotent operations with exponential backoff and jitter.
+- Honor throttling headers.
+- Handle pagination/continuation tokens.
+- Use request/correlation and idempotency keys where supported.
+- Validate response and desired postcondition.
+- Redact logs.
+- Protect destructive operations with exact target, preview, approval, and concurrency control.
+- Record caller, intent, before/after, and result.
 
-## Hands-on exercise
+A successful HTTP status may represent queued asynchronous work; poll the correct operation state.
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+## Reconciliation over scripts
 
-## Production considerations
+For governance, periodically inventory actual state and compare to declared policy: projects, repos, branch policies, administrators, pools, pipelines, service connections, variable groups, extensions, hooks, PAT policy, and retention. Generate a proposed change report before enforcement.
 
-Document security, reliability, maintainability, cost, and governance implications.
+Avoid automation that resets team-specific settings it does not own. Declare ownership and exceptions.
 
-## Discussion questions
+## Service hooks
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+Design consumers for duplicate, delayed, out-of-order, and missing delivery. Authenticate/sign/validate events when supported, restrict endpoints, queue quickly, process asynchronously, deduplicate by event ID, store checkpoint, retry safely, dead-letter failures, monitor subscription/consumer health, and provide replay/reconciliation.
 
-## Further reading
+Never rely solely on a webhook for compliance evidence; periodic reconciliation detects missed events.
 
-Add current, authoritative Microsoft or upstream product documentation here.
+## CLI cautions
 
+Set organization/project context explicitly in automation, avoid interactive defaults, quote values safely, use JSON output for parsing, check exit/status, and verify target tenant/org before writes. Human-readable output is not a stable API.
+
+## Interview preparation
+
+**Webhook versus polling?**  
+Webhook reduces latency/load; polling/reconciliation detects missing events and current truth. Critical integrations often use both.
+
+**How handle 429/5xx?**  
+Respect retry guidance, bounded exponential backoff/jitter, idempotency, circuit breaking, and alert after the budget is exhausted.
+
+**Why not PAT?**  
+It is user-bound long-lived bearer material. Application identities provide clearer lifecycle and short-lived tokens where supported.
+
+## Practical exercise
+
+Build a read-only inventory client with pagination and Entra identity. Add dry-run governance diff. Create a sandbox service hook consumer that deduplicates and dead-letters, then simulate duplicates/out-of-order/unavailability.
+
+## Official references
+
+- [Azure DevOps REST API reference](https://learn.microsoft.com/rest/api/azure/devops/)
+- [Azure DevOps CLI](https://learn.microsoft.com/azure/devops/cli/)
+- [Service hooks](https://learn.microsoft.com/azure/devops/service-hooks/overview)
+
+[Next: Cost, Continuity, Migration, and Developer Experience →](09-cost-continuity-migration-and-developer-experience.md)

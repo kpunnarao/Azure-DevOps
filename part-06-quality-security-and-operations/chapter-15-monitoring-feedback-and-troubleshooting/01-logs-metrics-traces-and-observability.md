@@ -1,37 +1,61 @@
 # Logs, Metrics, Traces, and Observability
 
-> Chapter 15 — Monitoring, Feedback, and Troubleshooting
+[← Chapter 15](README.md) · [Next: Azure Monitor and Application Insights →](02-azure-monitor-and-application-insights.md)
 
-[Chapter home](README.md) · [Next →](02-azure-monitor-and-application-insights.md)
+## Signals
 
-## Learning objectives
+- **Logs:** timestamped structured events with context.
+- **Metrics:** numeric time series efficient for trends and alerting.
+- **Distributed traces:** request path represented by trace and spans across services.
+- **Profiles:** where CPU/memory/time is spent.
+- **Events/changes:** deployments, configuration, flags, scaling, incidents.
+- **Business signals:** whether users accomplish intended outcomes.
 
-- Explain the purpose and core concepts of logs, metrics, traces, and observability.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+Observability is the ability to infer internal state from emitted evidence; it is not synonymous with collecting every log.
 
-## Content
+## Correlation
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+Propagate trace/context IDs through HTTP, queues, background work, and dependencies. Include service, version, environment, region, instance, operation, and outcome consistently. OpenTelemetry provides vendor-neutral APIs/semantic conventions for logs, metrics, and traces.
 
-## Hands-on exercise
+Do not put secrets, tokens, raw personal data, payment details, or unrestricted request bodies into telemetry. Classification, redaction, access, retention, residency, and deletion apply to observability data.
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+## Design from questions
 
-## Production considerations
+Start with questions:
 
-Document security, reliability, maintainability, cost, and governance implications.
+- Which version is failing?
+- Which tenants/cohorts/regions are affected?
+- Is failure in our service or dependency?
+- When did latency begin and what changed?
+- Are retries amplifying load?
+- Did the customer transaction complete correctly?
 
-## Discussion questions
+Then define signal, attributes, cardinality, sampling, retention, and owner. High-cardinality fields such as user ID in metric dimensions can explode cost; keep them in appropriately protected logs/traces if needed.
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+## Sampling and cost
 
-## Further reading
+Trace sampling controls volume, but preserve errors and high-value paths where possible. Understand head/tail or rate-based decisions and weighting before calculating rates. Logs need levels and structured schemas; debug logging should be time-bound.
 
-Add current, authoritative Microsoft or upstream product documentation here.
+Telemetry pipelines themselves need monitoring for dropped data, ingestion delay, quota, exporter failure, query latency, and cost.
 
+## Interview preparation
+
+**Metrics versus logs?**  
+Metrics efficiently show aggregate behavior and alert; logs provide discrete context. Traces connect distributed request work. Use them together.
+
+**What is cardinality?**  
+Number of unique dimension combinations. Unbounded IDs in metrics increase cost and reduce usability.
+
+**Is no alert evidence of health?**  
+No. Telemetry may be missing, sampling wrong, thresholds poor, or user traffic absent. Monitor observability health and explicit success signals.
+
+## Practical exercise
+
+Instrument one request across two services and a queue. Correlate spans, structured logs, and metrics. Add an accidental high-cardinality field and secret-like field, then redesign/redact and calculate cost impact.
+
+## Official references
+
+- [Azure Monitor overview](https://learn.microsoft.com/azure/azure-monitor/fundamentals/overview)
+- [Azure Monitor OpenTelemetry](https://learn.microsoft.com/azure/azure-monitor/app/opentelemetry-overview)
+
+[Next: Azure Monitor and Application Insights →](02-azure-monitor-and-application-insights.md)

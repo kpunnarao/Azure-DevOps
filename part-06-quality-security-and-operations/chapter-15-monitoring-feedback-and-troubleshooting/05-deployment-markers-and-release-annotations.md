@@ -1,37 +1,67 @@
 # Deployment Markers and Release Annotations
 
-> Chapter 15 — Monitoring, Feedback, and Troubleshooting
+[← SLIs and Error Budgets](04-slis-slos-and-error-budgets.md) · [Chapter 15](README.md) · [Next: Alerts and Incidents →](06-actionable-alerts-and-incident-management.md)
 
-[← Previous](04-slis-slos-and-error-budgets.md) · [Chapter home](README.md) · [Next →](06-actionable-alerts-and-incident-management.md)
+## Make change visible
 
-## Learning objectives
+When health changes, responders first ask “what changed?” A deployment marker is a timestamped event correlated with telemetry. It should identify application/service, environment, region/ring, immutable artifact version/digest, commit, build/release run, deployment strategy/increment, configuration/flag revision, and outcome.
 
-- Explain the purpose and core concepts of deployment markers and release annotations.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+Do not include secrets or sensitive change content.
 
-## Content
+## Emit lifecycle events
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+Record:
 
-## Hands-on exercise
+- Deployment started.
+- Artifact placed.
+- Traffic increment changed.
+- Feature flag/configuration changed.
+- Schema migration phase.
+- Deployment completed/failed/rolled back.
+- Incident mitigation.
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+A single completion marker cannot explain degradation that began during a canary increment.
 
-## Production considerations
+## Application Insights/Azure Monitor
 
-Document security, reliability, maintainability, cost, and governance implications.
+Application Insights release annotations and custom events can overlay changes on performance data. Azure Pipelines/Azure services integration details evolve, so verify current method; a robust fallback is a structured custom event or API call from the deployment pipeline using a protected identity.
 
-## Discussion questions
+Use UTC timestamps and a stable schema. Make emission idempotent or include a unique deployment event ID to avoid duplicate ambiguity after retries.
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+## Correlation
 
-## Further reading
+Stamp runtime telemetry with application version/digest and cohort. A marker shows the change time; per-request version dimensions prove which version served the failed request. Preserve mapping from runtime version to source and release evidence.
 
-Add current, authoritative Microsoft or upstream product documentation here.
+Dashboard release comparison should include baseline, candidate, traffic volume, latency/errors, dependencies, business outcome, and observation window.
 
+## Common mistakes
+
+- Marker says “deployment” but not version/environment.
+- Annotation uses mutable build name only.
+- No marker for flag/config/schema change.
+- Pipeline fails after deployment but marker says success.
+- Sampling/filtering removes release events.
+- Clock/time-zone mismatch.
+- Deployment marker treated as causal proof rather than correlation clue.
+
+## Interview preparation
+
+**Why markers if Git history exists?**  
+Git shows source history, not the exact time/content/environment/cohort of production change.
+
+**Marker versus version tag in telemetry?**  
+Marker shows event timing and metadata; version attribute identifies individual telemetry. Use both.
+
+**Does correlation prove causation?**  
+No. It prioritizes investigation; compare cohorts/baselines and inspect traces/dependencies.
+
+## Practical exercise
+
+Emit structured events for deployment start, 10% canary, 100%, and rollback. Overlay them on error/latency charts, query affected version, and link back to pipeline run and digest.
+
+## Official references
+
+- [Application Insights release annotations](https://learn.microsoft.com/azure/azure-monitor/app/failures-performance-transactions#release-annotations)
+- [Track custom events](https://learn.microsoft.com/azure/azure-monitor/app/api-custom-events-metrics)
+
+[Next: Actionable Alerts and Incident Management →](06-actionable-alerts-and-incident-management.md)

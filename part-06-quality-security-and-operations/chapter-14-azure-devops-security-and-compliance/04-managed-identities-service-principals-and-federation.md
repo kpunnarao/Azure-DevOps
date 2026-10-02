@@ -1,37 +1,56 @@
 # Managed Identities, Service Principals, and Federation
 
-> Chapter 14 — Azure DevOps Security and Compliance
+[← Least Privilege](03-least-privilege-and-separation-of-duties.md) · [Chapter 14](README.md) · [Next: PAT Security →](05-personal-access-token-security.md)
 
-[← Previous](03-least-privilege-and-separation-of-duties.md) · [Chapter home](README.md) · [Next →](05-personal-access-token-security.md)
+## Application identities
 
-## Learning objectives
+A service principal is an application's representation in a Microsoft Entra tenant. A managed identity is a special service principal whose credentials Azure manages.
 
-- Explain the purpose and core concepts of managed identities, service principals, and federation.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+- **System-assigned managed identity:** lifecycle tied to one Azure resource.
+- **User-assigned managed identity:** independent resource reusable by selected workloads.
+- **Service principal:** portable application identity using federation, certificate, or client secret.
 
-## Content
+Prefer managed identity for Azure-hosted automation. For external workloads, prefer workload identity federation or certificate over a client secret where supported.
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+## Federation
 
-## Hands-on exercise
+Workload identity federation exchanges a trusted workload assertion for a short-lived Microsoft Entra token. No reusable client secret is stored. Trust is constrained by issuer, subject, audience, tenant, and configuration.
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+For Azure Pipelines service connections, use the currently supported workload identity federation model and follow migration guidance. Validate issuer/subject/audience precisely; an overly broad trust can let unintended pipelines impersonate the identity.
 
-## Production considerations
+## Accessing Azure DevOps
 
-Document security, reliability, maintainability, cost, and governance implications.
+A managed identity/service principal used against Azure DevOps Services must be explicitly added to the organization, assigned a functional access level, groups, and resource permissions. Microsoft Entra API permissions do not replace Azure DevOps authorization. Application identities use short-lived tokens but still require lifecycle review.
 
-## Discussion questions
+## Accessing Azure
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+An Azure service connection represents the pipeline's path to a Microsoft Entra identity. Azure DevOps decides whether the pipeline may use the connection; Azure RBAC/data-plane permissions decide what the identity can do. Scope both.
 
-## Further reading
+## Lifecycle inventory
 
-Add current, authoritative Microsoft or upstream product documentation here.
+Record owner, hosting workload, tenant, client/principal IDs, federation/certificate/secret method, trust conditions, Azure DevOps membership/access/groups, Azure RBAC, service connections, repositories/pipelines, expiration/review, and incident procedure.
 
+Disable unused identities, but investigate dependencies first. User-assigned identities outlive attached resources and need explicit cleanup.
+
+## Interview preparation
+
+**Managed identity versus service principal?**  
+A managed identity is an Azure-managed service principal with managed credentials; a general service principal may use federation, certificate, or secret and can run outside Azure.
+
+**What risk remains after federation?**  
+Overprivileged identity, broad subject trust, compromised pipeline/repository/agent, token misuse during its life, and weak resource authorization.
+
+**Why add an app identity to Azure DevOps?**  
+Entra proves it; Azure DevOps membership/access level/permissions authorize product actions.
+
+## Practical exercise
+
+Use a managed identity from an Azure-hosted sandbox or a federated service principal to call one Azure DevOps read API and one narrowly scoped Azure resource. Deny writes, inspect token lifetime, and document both authorization layers.
+
+## Official references
+
+- [Service principals and managed identities in Azure DevOps](https://learn.microsoft.com/azure/devops/integrate/get-started/authentication/service-principal-managed-identity)
+- [Azure Resource Manager workload identity connections](https://learn.microsoft.com/azure/devops/pipelines/library/connect-to-azure)
+- [Workload identity federation](https://learn.microsoft.com/entra/workload-id/workload-identity-federation)
+
+[Next: Personal Access Token Security →](05-personal-access-token-security.md)

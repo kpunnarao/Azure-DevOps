@@ -1,37 +1,63 @@
 # Naming, Tagging, Retention, and Lifecycle
 
-> Chapter 16 — Governance, Scaling, and Platform Engineering
+[← Capacity](05-parallelism-capacity-and-performance.md) · [Chapter 16](README.md) · [Next: Extension Governance →](07-extension-governance.md)
 
-[← Previous](05-parallelism-capacity-and-performance.md) · [Chapter home](README.md) · [Next →](07-extension-governance.md)
+## Metadata is operational design
 
-## Learning objectives
+Names help humans find resources; immutable IDs preserve identity; tags/metadata express ownership, environment, cost, classification, lifecycle, and support. Avoid encoding every attribute into a brittle name.
 
-- Explain the purpose and core concepts of naming, tagging, retention, and lifecycle.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+A naming standard should define resource type, product/service, environment, region when relevant, sequence/uniqueness, character limits, examples, collision handling, and rename/migration consequences.
 
-## Content
+## Minimum metadata
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+For projects, repos, pipelines, pools, feeds, service connections, environments, Azure resources, and registries capture:
 
-## Hands-on exercise
+- Accountable owner/team and service catalog ID.
+- Purpose/workload.
+- Environment and data/security classification.
+- Cost center.
+- Criticality/SLO/tier.
+- Lifecycle state and review/expiry date.
+- Support/runbook/contact.
+- Source/template/module/version where applicable.
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+Validate metadata automatically and maintain a reconciliation inventory.
 
-## Production considerations
+## Retention classes
 
-Document security, reliability, maintainability, cost, and governance implications.
+Define classes for PR runs, main CI, release candidates, production releases, packages/images, test evidence, audit/security findings, telemetry, work items, and backups. Base periods on rollback, incident discovery, legal/compliance, support, cost, and privacy.
 
-## Discussion questions
+Coordinate lifecycles: retaining a deployment record without artifact, source, scan, and config is weak. Protect released content from automatic cleanup and test recovery.
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+## Archive and deletion
 
-## Further reading
+Archive inactive projects/repos/pipelines through read-only/disabled state where possible before deletion. Confirm ownership, activity over a full business cycle, dependencies/service hooks, legal hold, export/backup, package consumers, credentials, and restore test.
 
-Add current, authoritative Microsoft or upstream product documentation here.
+Deletion must use exact resolved targets, independent approval, dry-run/inventory, and post-validation. Avoid wildcard/environment-variable bulk deletion.
 
+## Naming changes
+
+Renames can break URLs, scripts, service hooks, policies, badges, package endpoints, dashboards, and external integrations even if internal redirects exist. Inventory consumers and provide a migration window.
+
+## Interview preparation
+
+**Why not put owner in name?**  
+Ownership changes. Use governed metadata/service catalog; names should remain stable.
+
+**How determine retention?**  
+Classify by business/legal/privacy/rollback/incident value, coordinate related evidence, and balance cost with tested recovery.
+
+**Archive versus delete?**  
+Archive reduces active clutter/access while preserving recoverability; delete only after dependency/evidence and restoration requirements are satisfied.
+
+## Practical exercise
+
+Create a catalog for ten Azure DevOps resource types, validate names/tags, classify retention, and run a tabletop project decommission including export and restore evidence.
+
+## Official references
+
+- [Azure Pipelines retention](https://learn.microsoft.com/azure/devops/pipelines/policies/retention)
+- [Delete and recover Azure DevOps projects](https://learn.microsoft.com/azure/devops/organizations/projects/delete-project)
+- [Azure resource naming/tagging guidance](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming)
+
+[Next: Extension Governance →](07-extension-governance.md)

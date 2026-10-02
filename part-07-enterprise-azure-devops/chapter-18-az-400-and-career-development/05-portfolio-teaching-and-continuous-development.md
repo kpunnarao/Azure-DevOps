@@ -1,37 +1,85 @@
 # Portfolio, Teaching, and Continuous Development
 
-> Chapter 18 — AZ-400 Preparation and Career Development
+[← Interview Preparation](04-scenario-based-interview-preparation.md) · [Chapter 18](README.md)
 
-[← Previous](04-scenario-based-interview-preparation.md) · [Chapter home](README.md)
+## Portfolio evidence
 
-## Learning objectives
+A strong portfolio shows decisions and verified behavior:
 
-- Explain the purpose and core concepts of portfolio, teaching, and continuous development.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+- Clear problem/NFRs and architecture.
+- Working pipelines/IaC/manifests/templates.
+- Security and trust-boundary reasoning.
+- Tests and traceability.
+- Artifact provenance.
+- Production-style telemetry/SLO/alerts.
+- Failure injection and recovery.
+- Cost/continuity/migration.
+- ADRs and alternatives.
+- Screenshots/log excerpts sanitized and reproducible.
+- Lessons and known limitations.
 
-## Content
+Use public-safe synthetic resources. Run secret/history scanning before publishing. Add license and attribution for third-party code/assets.
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+## Write case studies
 
-## Hands-on exercise
+Structure each:
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+1. Context and constraints.
+2. Initial risk/problem.
+3. Options considered.
+4. Decision and architecture.
+5. Implementation.
+6. Failure/troubleshooting.
+7. Measured outcome.
+8. Security/cost/operations.
+9. What you would change.
+10. Links to relevant files/demo.
 
-## Production considerations
+A small working system with honest tradeoffs is stronger than a giant unverifiable diagram.
 
-Document security, reliability, maintainability, cost, and governance implications.
+## Teaching
 
-## Discussion questions
+Teach one chapter at a time using learning objective, mental model, live example, failure demonstration, guided lab, knowledge check, scenario discussion, and take-home exercise. Learners should predict behavior before you run it.
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+Maintain instructor notes: prerequisites, timing, common misconceptions, cleanup, cost, accessibility, safe demo data, and alternative paths. Teaching exposes gaps—record questions you cannot answer and verify them later.
 
-## Further reading
+## Continuous development plan
 
-Add current, authoritative Microsoft or upstream product documentation here.
+Quarterly:
 
+- Diff AZ-400 and Azure DevOps/Azure/GitHub release guidance.
+- Patch dependencies/templates/agent images.
+- Re-run capstone happy/failure paths.
+- Review portfolio secrets/links/screenshots.
+- Complete one production-scale topic: SRE, security, platform engineering, FinOps, architecture, or leadership.
+- Contribute documentation/tooling/community knowledge.
+- Teach or mentor.
+- Review career evidence and next role gaps.
+
+Monthly, examine incidents/releases from your own work and convert learning into an ADR, test, alert, runbook, or platform change.
+
+## Career ladder
+
+- Practitioner: operates established workflows.
+- Senior: designs, diagnoses, and improves systems.
+- Lead/platform engineer: builds reusable capabilities and coordinates tradeoffs.
+- Architect/principal: shapes enterprise boundaries, investment, risk, and evolution.
+- Educator/mentor: multiplies capability with accurate, inclusive teaching.
+
+Titles vary; seek demonstrated scope and impact rather than labels.
+
+## Final mastery exercise
+
+Deliver the capstone demo to an audience, teach one difficult topic, answer objections, and collect feedback. Publish a six-month development plan containing capability, project, evidence, mentor/community, and review date.
+
+## Official references
+
+- [Microsoft Learn profile and credentials](https://learn.microsoft.com/users/me/)
+- [Microsoft technical communities](https://techcommunity.microsoft.com/)
+- [Azure DevOps release notes](https://learn.microsoft.com/azure/devops/release-notes/)
+
+## Curriculum completion
+
+You have completed **Azure DevOps: From Fundamentals to Expert** when you can repeatedly perform, diagnose, secure, explain, and improve the practices—not merely when every checkbox is marked.
+
+Return to the [Part VII overview](../README.md) and the [complete curriculum](../../README.md). Schedule regular reviews so this repository remains a living single source of truth.

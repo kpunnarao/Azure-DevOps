@@ -1,37 +1,69 @@
 # Test Levels and the Test Pyramid
 
-> Chapter 13 — Testing Strategy and Azure Test Plans
+[← Chapter 13](README.md) · [Next: Risk-based Testing →](02-risk-based-testing.md)
 
-[Chapter home](README.md) · [Next →](02-risk-based-testing.md)
+## Place feedback deliberately
 
-## Learning objectives
+A test portfolio usually needs many fast isolated tests, fewer boundary tests, and a small number of expensive end-to-end journeys:
 
-- Explain the purpose and core concepts of test levels and the test pyramid.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+```text
+                End-to-end
+        Integration / contract
+          Component / service
+                 Unit
+```
 
-## Content
+The pyramid is an economic model, not a quota. The cheapest level that can reliably expose the risk should own it.
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+## Levels
 
-## Hands-on exercise
+- **Unit:** one function/class/module with controlled collaborators; fast and diagnostic.
+- **Component/service:** deployable unit through public behavior with dependencies controlled.
+- **Contract:** producer/consumer compatibility without full end-to-end setup.
+- **Integration:** real interaction with database, queue, identity, network, or external API.
+- **End-to-end:** complete critical journey across deployed system.
+- **Nonfunctional:** performance, resilience, security, accessibility, usability, recovery, and compliance.
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+Static type/lint/security analysis is valuable but not an execution-test level.
 
-## Production considerations
+## Why top-heavy suites fail
 
-Document security, reliability, maintainability, cost, and governance implications.
+End-to-end tests are broad but slow, costly, environmentally sensitive, and hard to diagnose. They should prove a few critical journeys and integration assumptions, not every validation rule. Push business edge cases downward; retain higher tests for wiring and behavior impossible to prove in isolation.
 
-## Discussion questions
+A microservice portfolio may need strong contract tests; an analytics system may emphasize data-quality/integration tests; safety-critical logic may need unusually exhaustive unit and formal analysis. Architecture changes the shape.
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+## Quality attributes
 
-## Further reading
+Functional correctness alone is incomplete. For each workload identify response time, throughput, availability, recoverability, security, accessibility, compatibility, and data integrity risks. Test them at suitable stages and environments.
 
-Add current, authoritative Microsoft or upstream product documentation here.
+## Common mistakes
 
+- Counting tests rather than measuring risk covered.
+- Mocking so heavily that the test proves the mock.
+- Duplicating identical assertions at every level.
+- Running all expensive tests on every edit.
+- Replacing integration testing with unit coverage.
+- Treating production monitoring as a substitute for pre-release tests.
+- Making the pyramid an enforced percentage.
+
+## Interview preparation
+
+**Why not automate everything end to end?**  
+Cost, speed, flakiness, diagnosability, and limited scenario coverage. Push precise behavior lower and keep representative journeys at the top.
+
+**Unit versus integration boundary?**  
+A unit test controls external collaborators; an integration test validates a real boundary such as database, filesystem, network, or service.
+
+**Where test resilience?**  
+At component/integration and production-like system levels with controlled fault injection and clear safety boundaries.
+
+## Practical exercise
+
+List ten failure modes for one feature. Assign each to the cheapest reliable level, justify any duplication, estimate execution time and diagnostic value, then implement one test at four levels and compare feedback.
+
+## Official references
+
+- [Azure Test Plans overview](https://learn.microsoft.com/azure/devops/test/overview)
+- [Review continuous test results](https://learn.microsoft.com/azure/devops/pipelines/test/review-continuous-test-results-after-build)
+
+[Next: Risk-based Testing →](02-risk-based-testing.md)

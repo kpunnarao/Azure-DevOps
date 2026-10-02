@@ -1,37 +1,57 @@
 # Infrastructure and Environment Provisioning
 
-> Chapter 17 — End-to-End Capstone Project
+[← CI and Artifacts](03-ci-quality-and-artifact-design.md) · [Chapter 17](README.md) · [Next: Deployment and Approvals →](05-multi-stage-deployment-and-approvals.md)
 
-[← Previous](03-ci-quality-and-artifact-design.md) · [Chapter home](README.md) · [Next →](05-multi-stage-deployment-and-approvals.md)
+## Required infrastructure
 
-## Learning objectives
+Provision in a sandbox:
 
-- Explain the purpose and core concepts of infrastructure and environment provisioning.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+- Resource groups and metadata.
+- Network/subnets/private DNS/egress as justified.
+- ACR.
+- AKS or alternative runtime defined by ADR.
+- Key Vault and managed/workload identities.
+- Database/storage.
+- Log Analytics/Application Insights/Azure Monitor alerts.
+- Optional App Configuration.
+- Azure DevOps environments/service connections through approved bootstrap.
 
-## Content
+Use Bicep or Terraform modules with versioned interfaces and separate environment parameters. No secrets in parameters/state/output.
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+## Pipeline
 
-## Hands-on exercise
+Validate format/schema, module tests, security/policy/cost, then create what-if/saved plan. Use federated identity and environment-specific least privilege. Require approval for protected apply. Run functional post-deployment assertions.
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+For Terraform, remote state uses encryption, Entra authorization, locking, version/recovery, and lifecycle separation. For Bicep, retain deployment/what-if identity and understand deletion semantics.
 
-## Production considerations
+## Environments
 
-Document security, reliability, maintainability, cost, and governance implications.
+Create Development, Test, and Production Azure DevOps environments explicitly. Authorize selected pipelines. Model purpose, data, network, identity, config, checks, monitoring, reset, cost, and lifecycle. Production-like Test must represent topology/security behavior without copying sensitive data.
 
-## Discussion questions
+## Destructive safety
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+Protect registry/database/state/Key Vault and other critical resources using plan policy, lifecycle/locks where appropriate, narrow delete permissions, backup, and separate decommission workflow. Demonstrate an attempted destructive change being blocked.
 
-## Further reading
+## Drift
 
-Add current, authoritative Microsoft or upstream product documentation here.
+Make one safe out-of-band sandbox change. Detect through scheduled/read-only preview, classify ownership, reconcile through code, and preserve audit. Do not auto-apply drift correction with privileged identity.
 
+## Failure demonstrations
+
+- Wrong subscription/target scope check.
+- Insufficient RBAC.
+- Concurrent state lock.
+- Policy rejection of public exposure.
+- Replacement of stateful resource.
+- Private-network DNS/reachability issue.
+- Restore of a disposable state/data backup.
+
+## Acceptance evidence
+
+Module docs/tests, parameter matrix, preview/plan and approval, state/deployment records, identity/RBAC diagram, policy results, deployment outputs, post-validation, drift report, restore evidence, and cost inventory.
+
+## Expert review questions
+
+What is authoritative state? Can plan contain secrets? What can the IaC identity delete? How does Test differ from Production? How is backend/bootstrap recovered? Which resources cannot be recreated from code alone?
+
+[Next: Multi-stage Deployment and Approvals →](05-multi-stage-deployment-and-approvals.md)
