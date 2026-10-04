@@ -1,37 +1,64 @@
 # Manual, Exploratory, and Automated Testing
 
-> Chapter 13 — Testing Strategy and Azure Test Plans
+[← Risk-based Testing](02-risk-based-testing.md) · [Chapter 13](README.md) · [Next: Test Plans Artifacts →](04-test-plans-suites-cases-and-runs.md)
 
-[← Previous](02-risk-based-testing.md) · [Chapter home](README.md) · [Next →](04-test-plans-suites-cases-and-runs.md)
+## Complementary evidence
 
-## Learning objectives
+**Scripted manual testing** follows defined steps and expected results. It helps with regulated evidence, user acceptance, visual/physical workflows, and scenarios expensive to automate.
 
-- Explain the purpose and core concepts of manual, exploratory, and automated testing.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+**Exploratory testing** is simultaneous learning, design, and execution guided by a time-boxed charter. It is not random clicking.
 
-## Content
+**Automated testing** executes repeatable checks quickly and consistently. It excels at regression, data combinations, concurrency, and frequent CI feedback.
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+Automate stable, valuable, repeatable behavior when lifecycle savings exceed maintenance. Keep human judgment for usability, novelty, ambiguity, accessibility nuance, and investigation.
 
-## Hands-on exercise
+## Exploratory charter
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+A useful charter defines:
 
-## Production considerations
+- Mission and risk.
+- Scope and exclusions.
+- Personas/data/environment.
+- Heuristics or tours.
+- Time box.
+- Evidence to capture.
+- Stop/continue criteria.
+- Debrief questions.
 
-Document security, reliability, maintainability, cost, and governance implications.
+Azure Test & Feedback tools can capture notes, screenshots, recordings, and bugs connected to context. Protect sensitive data before attaching evidence.
 
-## Discussion questions
+## Automation design
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+Tests should have deterministic setup/cleanup, clear assertions, isolated ownership, useful diagnostics, and stable selectors/contracts. A passing test with no meaningful assertion is automation theatre.
 
-## Further reading
+Do not automate a broken process blindly. Simplify the product/testability first: APIs, dependency injection, stable identifiers, controllable clocks, data builders, and observable state.
 
-Add current, authoritative Microsoft or upstream product documentation here.
+## Manual case quality
 
+Write intent and expected observable outcome, not fragile click-by-click detail unless regulated execution requires it. Parameterize meaningful data. Maintain reusable shared steps sparingly; excessive reuse can make cases hard to understand and change.
+
+## Human and automated traceability
+
+An Azure Test Plans test case can be associated with an automated test for requirement-level reporting. The automated test code remains versioned with application source; the work item expresses business traceability. Avoid mapping thousands of trivial unit tests individually.
+
+## Interview preparation
+
+**What should stay manual?**  
+Work requiring human perception/judgment, rapidly changing behavior, one-off investigation, physical constraints, or low return on automation.
+
+**What makes exploratory testing disciplined?**  
+A risk-based charter, time box, heuristics, captured evidence, and debrief that updates cases/automation/product understanding.
+
+**When automate a regression?**  
+When it is important, repeatable, stable enough, frequent, and cheaper to maintain automatically than execute manually.
+
+## Practical exercise
+
+Take one feature and create a manual case, exploratory charter, and automated regression. Execute all three, compare defects/evidence, then decide which artifacts should survive the release.
+
+## Official references
+
+- [Exploratory testing and Test & Feedback](https://learn.microsoft.com/azure/devops/test/perform-exploratory-tests)
+- [Automated testing with Azure Test Plans](https://learn.microsoft.com/azure/devops/test/automated-testing-overview)
+
+[Next: Test Plans, Suites, Cases, and Runs →](04-test-plans-suites-cases-and-runs.md)

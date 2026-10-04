@@ -1,37 +1,71 @@
 # AZ-400 Skills and Learning Paths
 
-> Chapter 18 — AZ-400 Preparation and Career Development
+[← Certification Path](01-certification-path-and-prerequisites.md) · [Chapter 18](README.md) · [Next: Practice and Gap Analysis →](03-practice-assessments-and-gap-analysis.md)
 
-[← Previous](01-certification-path-and-prerequisites.md) · [Chapter home](README.md) · [Next →](03-practice-assessments-and-gap-analysis.md)
+## Use the study guide as the source of truth
 
-## Learning objectives
+Download/review the official AZ-400 study guide on the day you build your plan and again before scheduling. Microsoft updates the English exam first and localized versions may follow later. Track the “skills measured as of” date and change log.
 
-- Explain the purpose and core concepts of az-400 skills and learning paths.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+Current domains map to this repository:
 
-## Content
+| AZ-400 domain | Primary Parts |
+|---|---|
+| Processes and communications | I, II, VI, VII |
+| Source-control strategy | II |
+| Build/release pipelines | III, IV, V, VI, VII |
+| Security and compliance | II–VII |
+| Instrumentation | IV, VI, VII |
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+The exam outline also expects both GitHub and Azure DevOps solution experience. Add GitHub Issues/Projects, branch protection, Actions, runners, environments, packages, authentication/GITHUB_TOKEN/OIDC, Advanced Security/Dependabot, and insights labs where this Azure DevOps-centered repository does not provide equivalent hands-on work.
 
-## Hands-on exercise
+## Objective-to-evidence matrix
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+For every bullet in the official outline record:
 
-## Production considerations
+- Confidence 0–3.
+- Official documentation link.
+- Hands-on lab.
+- Failure/troubleshooting example.
+- Design tradeoff.
+- Capstone evidence.
+- Last review date.
+- Next action.
 
-Document security, reliability, maintainability, cost, and governance implications.
+A read article counts as exposure, not capability. Level 3 means implement, break, diagnose, compare, and explain.
 
-## Discussion questions
+## Weight study intelligently
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+Build/release pipelines currently carry 50–55%, so they deserve the largest study time. Still integrate every domain: a pipeline scenario may test identity, package version, approval, database migration, and monitoring simultaneously.
 
-## Further reading
+Suggested cycle:
 
-Add current, authoritative Microsoft or upstream product documentation here.
+- 50% hands-on build/break.
+- 20% official documentation/study modules.
+- 15% scenario questions.
+- 10% teaching/explanation.
+- 5% flash review of exact product distinctions.
 
+Adjust based on measured gaps.
+
+## Documentation habits
+
+Keep notes as decision tables rather than copied paragraphs: when to use, how it works, security boundary, failure modes, alternatives, limits, and verification. Date volatile facts such as licensing, agent types, exam weights, deprecations, and feature support.
+
+## Interview preparation
+
+**How study a broad objective like pipelines?**  
+Decompose into triggers, graph/data, agents, templates, artifacts, packages, testing, deployment, security, performance, retention, and troubleshooting; create integrated scenarios.
+
+**What if Microsoft changes the outline?**  
+Diff the new guide, classify new/changed/removed objectives, update the matrix/repository, and run targeted labs before the exam.
+
+## Practical exercise
+
+Convert every current study-guide bullet into a spreadsheet/Markdown matrix. Link this repository's pages and capstone evidence, then create GitHub-specific labs for unmapped objectives.
+
+## Official references
+
+- [Official AZ-400 study guide](https://learn.microsoft.com/credentials/certifications/resources/study-guides/az-400)
+- [AZ-400 certification training page](https://learn.microsoft.com/training/courses/az-400t00)
+
+[Next: Practice Assessments and Gap Analysis →](03-practice-assessments-and-gap-analysis.md)

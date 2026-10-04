@@ -1,37 +1,79 @@
 # Capstone Requirements and Architecture
 
-> Chapter 17 — End-to-End Capstone Project
+[← Chapter 17](README.md) · [Next: Boards, Repos, and Branch Policies →](02-boards-repos-and-branch-policies.md)
 
-[Chapter home](README.md) · [Next →](02-boards-repos-and-branch-policies.md)
+## Establish the problem before tools
 
-## Learning objectives
+Write a one-page product brief: users, jobs, business outcome, in/out of scope, dependencies, owners, support hours, data classification, expected load, and success metrics.
 
-- Explain the purpose and core concepts of capstone requirements and architecture.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+Functional minimum:
 
-## Content
+- Create/read/update an order.
+- Idempotent submission.
+- Authentication/authorization.
+- Web client or API consumer.
+- Health endpoints and telemetry.
+- Database persistence.
+- Feature-flagged enhancement.
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+## Nonfunctional requirements
 
-## Hands-on exercise
+Define measurable targets:
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+- Availability and latency SLO.
+- RTO/RPO and data-integrity requirement.
+- Security/threat assumptions.
+- Privacy/retention.
+- Peak throughput/capacity.
+- Deployment frequency/lead-time goal.
+- Maximum initial release blast radius.
+- Audit/evidence retention.
+- Cost budget.
+- Supported regions/browsers/API compatibility.
 
-## Production considerations
+Avoid “highly available” without a measurement/window.
 
-Document security, reliability, maintainability, cost, and governance implications.
+## Architecture package
 
-## Discussion questions
+Create context, container/component, deployment, identity/trust-boundary, CI/CD flow, and telemetry diagrams. Show Azure DevOps, Azure, ACR, AKS/application platform, data, Key Vault/configuration, identities, network, GitOps/pipeline control, and external users/dependencies.
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+Create ADRs for:
 
-## Further reading
+- Azure DevOps topology/repository strategy.
+- Azure Pipelines/agent choice.
+- Bicep versus Terraform.
+- Runtime platform.
+- Deployment strategy.
+- Secretless identity.
+- Database migration.
+- Test strategy.
+- Observability/SLO.
+- Backup/recovery.
+- Template/GitOps ownership.
 
-Add current, authoritative Microsoft or upstream product documentation here.
+Each ADR includes context, options, decision, consequences, risks, and revisit trigger.
 
+## Risk and threat model
+
+Identify assets, actors, entry points, trust boundaries, data flows, abuse cases, operational failure modes, likelihood/impact, control/test/telemetry/recovery, owner, and residual risk.
+
+Mandatory threats: malicious PR, dependency compromise, agent persistence, stolen credential, artifact substitution, overprivileged service connection, destructive IaC, secret/log leak, insecure container, unapproved production change, telemetry failure, data migration incompatibility.
+
+## Acceptance evidence
+
+- Reviewed product brief and NFR table.
+- Versioned diagrams/ADRs.
+- Risk-control-test matrix.
+- Cost estimate.
+- RACI/on-call/escalation.
+- Assumption and open-question log.
+
+## Expert review questions
+
+Why this project/repository boundary? Which identity could cause the greatest damage? What fails if Azure DevOps, ACR, Key Vault, or region is unavailable? Which decision is hardest to reverse? What evidence proves the SLO?
+
+## Practical checkpoint
+
+Run a 30-minute architecture review with a developer, platform, security, and operations perspective. Record decisions and update at least one design from feedback.
+
+[Next: Boards, Repos, and Branch Policies →](02-boards-repos-and-branch-policies.md)

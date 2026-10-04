@@ -1,37 +1,63 @@
 # Parallelism, Capacity, and Performance
 
-> Chapter 16 — Governance, Scaling, and Platform Engineering
+[← Agent Pools](04-agent-pool-architecture-and-security.md) · [Chapter 16](README.md) · [Next: Naming and Lifecycle →](06-naming-tagging-retention-and-lifecycle.md)
 
-[← Previous](04-agent-pool-architecture-and-security.md) · [Chapter home](README.md) · [Next →](06-naming-tagging-retention-and-lifecycle.md)
+## Three constraints
 
-## Learning objectives
+- **Parallel jobs:** organization/licensing concurrency entitlement.
+- **Agents:** available compute workers.
+- **Pipeline graph:** jobs that are ready and independent.
 
-- Explain the purpose and core concepts of parallelism, capacity, and performance.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+Ten idle agents do not help if the organization has one parallel job. Ten parallel jobs do not help a serial pipeline. Autoscaling does not eliminate cold-start delay.
 
-## Content
+## Measure demand
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+Collect arrivals by hour, queue duration percentiles, job duration/distribution, pool/agent utilization, ready-but-queued jobs, cold start, failure/retry, workload/trust class, and future growth.
 
-## Hands-on exercise
+A simple concurrency approximation is arrival rate × average job duration, then adjust for burstiness, tail duration, maintenance, failure, and desired queue SLO. Model pools separately because one blocked trust zone cannot borrow another safely.
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+## Optimize in order
 
-## Production considerations
+1. Remove unnecessary triggers/work.
+2. Shorten critical path via caching/build graph.
+3. Parallelize independent valuable jobs.
+4. Balance test shards by duration.
+5. Reduce agent initialization/image pull/tool install.
+6. Schedule nonurgent work off peak.
+7. Right-size agents.
+8. Add parallel entitlement and capacity.
 
-Document security, reliability, maintainability, cost, and governance implications.
+Parallel work consumes more total compute and can overload package feeds, test environments, databases, or rate-limited APIs. Set downstream concurrency controls.
 
-## Discussion questions
+## Capacity policy
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+Define queue SLO by pipeline class, minimum warm capacity, maximum scale, burst behavior, tenant/team quotas, priority, cancellation of superseded PRs, cost budget, and degraded-mode plan. Production hotfixes may need reserved capacity.
 
-## Further reading
+Do not let one monorepo fan-out starve every product. Fairness may require separate pools or governance.
 
-Add current, authoritative Microsoft or upstream product documentation here.
+## Performance evidence
 
+Report queue time separately from execution, time to first actionable failure, end-to-end feedback, tail percentiles, and cost per successful run. Average duration hides severe tails.
+
+## Interview preparation
+
+**Why are jobs queued with idle agents?**  
+Parallel-job entitlement, demands mismatch, pool authorization, agent offline/disabled, or a different pool/trust constraint.
+
+**How size a pool?**  
+From arrival/duration distributions, burst/tail, cold starts, queue SLO, maintenance, failure headroom, trust zones, and budget—then test and adjust.
+
+**Is more parallelism always faster?**  
+No. Overhead, imbalance, resource contention, quotas, and serial critical paths limit benefit.
+
+## Practical exercise
+
+Use a week of synthetic job data to forecast capacity. Compare zero/one/five warm agents, model licensing, create a queue SLO, then optimize critical path before purchasing capacity.
+
+## Official references
+
+- [Parallel jobs](https://learn.microsoft.com/azure/devops/pipelines/licensing/concurrent-jobs)
+- [Pipeline run sequence and agent allocation](https://learn.microsoft.com/azure/devops/pipelines/process/runs)
+- [Pipeline reports](https://learn.microsoft.com/azure/devops/pipelines/reports/pipelinereport)
+
+[Next: Naming, Tagging, Retention, and Lifecycle →](06-naming-tagging-retention-and-lifecycle.md)

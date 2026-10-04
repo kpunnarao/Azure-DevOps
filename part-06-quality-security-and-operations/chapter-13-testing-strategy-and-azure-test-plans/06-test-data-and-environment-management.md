@@ -1,37 +1,61 @@
 # Test Data and Environment Management
 
-> Chapter 13 — Testing Strategy and Azure Test Plans
+[← Traceability](05-requirements-to-test-traceability.md) · [Chapter 13](README.md) · [Next: Flaky Tests and Effectiveness →](07-flaky-tests-code-coverage-and-effectiveness.md)
 
-[← Previous](05-requirements-to-test-traceability.md) · [Chapter home](README.md) · [Next →](07-flaky-tests-code-coverage-and-effectiveness.md)
+## Repeatability needs controlled state
 
-## Learning objectives
+A test result is hard to trust when data, time, dependencies, or environment are unknown. Good test data is representative enough to expose risk, deterministic enough to reproduce, isolated enough for parallelism, and protected according to classification.
 
-- Explain the purpose and core concepts of test data and environment management.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+## Data strategies
 
-## Content
+- Builders/factories create scenario-specific data.
+- Seeded synthetic datasets provide known baselines.
+- Transaction rollback or disposable schemas isolate tests.
+- Service virtualization provides controlled dependency behavior.
+- Masked/subset production data may be used only through approved privacy governance.
+- Property-based/generative data explores input space and invariants.
+- Fault data simulates expiration, corruption, delay, duplicates, and partial failure.
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+Never copy production personal, financial, health, or secret data casually. Masking must resist re-identification and preserve only structures necessary for testing.
 
-## Hands-on exercise
+## Lifecycle
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+Each test owns setup, unique identifiers, execution, assertion, and cleanup. Cleanup should be idempotent and must not target shared/production resources. For failed-test diagnosis, retain only approved evidence and expire it.
 
-## Production considerations
+Control time through injectable clocks; control randomness with recorded seeds. Use correlation IDs to trace created data.
 
-Document security, reliability, maintainability, cost, and governance implications.
+## Environment strategy
 
-## Discussion questions
+Use local/ephemeral environments for fast isolated feedback, shared integration for cross-service behavior, and production-like staging for topology/deployment risk. Version environment configuration and dependencies. Monitor drift, capacity, queue backlog, certificates, identities, and third-party sandboxes.
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+Shared environments need reservations/ownership, health checks, reset mechanism, change calendar, and visible incidents. Do not blame tests for environment outages; classify infrastructure failure separately.
 
-## Further reading
+## Parallel execution
 
-Add current, authoritative Microsoft or upstream product documentation here.
+Namespace data by run/test, avoid global accounts, use independent queues/topics, and ensure cleanup cannot affect another worker. If tests mutate shared state, serialize only that risk rather than the entire suite.
 
+## Secrets
+
+Use test-only short-lived credentials with least privilege. Keep them out of cases, screenshots, logs, attachments, and exported CSV files. Redact diagnostics and rotate after suspected exposure.
+
+## Interview preparation
+
+**Can production data be used in testing?**  
+Only under explicit legal/security/privacy approval with minimization, masking/tokenization, access, retention, and audit. Synthetic data is preferred.
+
+**How make tests parallel-safe?**  
+Unique namespaces/identifiers, isolated state, deterministic setup, idempotent cleanup, and no shared mutable accounts.
+
+**What causes environment-related flakiness?**  
+Drift, contention, unstable dependencies, stale data, rate limits, time, certificates, network, capacity, and uncoordinated deployments.
+
+## Practical exercise
+
+Create a data factory with unique run IDs and deterministic random seed. Run tests in parallel, interrupt cleanup, and rerun it safely. Define a retention/redaction policy for failed-run attachments and test a full environment reset.
+
+## Official references
+
+- [Use parameters in test cases](https://learn.microsoft.com/azure/devops/test/repeat-test-with-different-data)
+- [Test configurations](https://learn.microsoft.com/azure/devops/test/test-different-configurations)
+
+[Next: Flaky Tests, Code Coverage, and Effectiveness →](07-flaky-tests-code-coverage-and-effectiveness.md)

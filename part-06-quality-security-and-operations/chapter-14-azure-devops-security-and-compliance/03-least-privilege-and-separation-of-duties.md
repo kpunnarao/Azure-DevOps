@@ -1,37 +1,62 @@
 # Least Privilege and Separation of Duties
 
-> Chapter 14 — Azure DevOps Security and Compliance
+[← Access Levels and Permissions](02-access-levels-groups-and-permissions.md) · [Chapter 14](README.md) · [Next: Workload Identity →](04-managed-identities-service-principals-and-federation.md)
 
-[← Previous](02-access-levels-groups-and-permissions.md) · [Chapter home](README.md) · [Next →](04-managed-identities-service-principals-and-federation.md)
+## Limit capability and concentration
 
-## Learning objectives
+Least privilege limits identity, action, resource, environment, time, network, and conditions to what is necessary. Separation of duties prevents one ordinary identity from proposing, approving, executing, and concealing a high-impact change.
 
-- Explain the purpose and core concepts of least privilege and separation of duties.
-- Recognize where it fits in an end-to-end Azure DevOps delivery system.
-- Apply it safely in a guided lab or sanitized project scenario.
-- Diagnose common implementation and operational problems.
+Apply both to humans, pipelines, agents, service connections, build-service tokens, extensions, webhooks, and external integrations.
 
-## Content
+## High-risk combinations
 
-> [!NOTE]
-> This topic page is scaffolded and ready for the detailed lesson, examples, diagrams, and references.
+- Modify protected source + bypass review.
+- Modify pipeline/template + use production connection.
+- Administer service connection + approve own deployment.
+- Write package/image + deploy to production.
+- Administer audit settings + erase/export evidence.
+- Manage group membership + grant self collection administration.
+- Control self-hosted agent + access production secret.
+- Create PAT + use unrestricted organization scope.
 
-## Hands-on exercise
+Not every small team can staff distinct people. Use protected branches, independent resource ownership, automated checks, just-in-time privilege, strong audit, and required peer approval to compensate.
 
-Define a small, safe exercise that demonstrates this topic in a learning environment.
+## Time and context
 
-## Production considerations
+Use Microsoft Entra PIM/JIT groups where appropriate for administrative roles. Make elevation time-limited, justified, approved, notified, and audited. Maintain monitored break-glass access for identity/control-plane outages; test it and rotate credentials.
 
-Document security, reliability, maintainability, cost, and governance implications.
+Service identities should have one purpose and environment. A production deployment identity should not write source or publish CI artifacts; a CI identity should not administer production.
 
-## Discussion questions
+## Pipeline-specific controls
 
-1. Why is this topic important?
-2. What design choices and tradeoffs should an engineer consider?
-3. What can fail, and how would you troubleshoot it?
-4. How is this topic currently handled in your project?
+- Limit job authorization scope and repository access.
+- Authorize protected resources to selected pipelines.
+- Use required templates/checks outside YAML.
+- Treat fork/PR code as untrusted.
+- Use disposable isolated agents for secret-bearing jobs.
+- Separate build and deployment identities.
+- Pin external templates/tasks.
+- Restrict who can edit/queue privileged pipelines.
 
-## Further reading
+## Interview preparation
 
-Add current, authoritative Microsoft or upstream product documentation here.
+**Does DevOps mean developers receive production admin?**  
+No. DevOps integrates ownership and feedback; it does not eliminate risk-appropriate authorization or independent control.
 
+**How implement separation with a small team?**  
+Peer review, resource-owned checks, automated evidence, JIT privilege, distinct service identities, alerting, and audited break-glass.
+
+**What is privilege creep?**  
+Access accumulates through role changes, temporary exceptions, nested groups, and abandoned automation. Scheduled review/removal controls it.
+
+## Practical exercise
+
+Create an authority matrix for source, templates, pipelines, agents, artifacts, production connections, approvals, audit, and break-glass. Identify any unilateral production path and reduce it without adding a manual low-value handoff.
+
+## Official references
+
+- [Make Azure DevOps secure](https://learn.microsoft.com/azure/devops/organizations/security/security-overview)
+- [Secure Azure Pipelines](https://learn.microsoft.com/azure/devops/pipelines/security/overview)
+- [Pipeline resource security](https://learn.microsoft.com/azure/devops/pipelines/security/resources)
+
+[Next: Managed Identities, Service Principals, and Federation →](04-managed-identities-service-principals-and-federation.md)
